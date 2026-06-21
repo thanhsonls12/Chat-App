@@ -1,6 +1,7 @@
 export const COMMON_MESSAGES = {
   INTERNAL_SERVER_ERROR: 'Internal server error',
-  UNAUTHORIZED: 'Unauthorized'
+  UNAUTHORIZED: 'Unauthorized',
+  FORBIDDEN: 'Forbidden'
 } as const
 
 export const AUTH_MESSAGES = {

@@ -1,4 +1,4 @@
-const requiredEnvKeys = ['MONGO_URI', 'ACCESS_TOKEN_SECRET'] as const
+const requiredEnvKeys = ['MONGO_URI', 'ACCESS_TOKEN_SECRET', 'CLIENT_URL'] as const
 
 for (const key of requiredEnvKeys) {
   if (!process.env[key]) {
@@ -10,5 +10,6 @@ export const envConfig = {
   NODE_ENV: process.env.NODE_ENV ?? 'development',
   PORT: Number(process.env.PORT ?? 5001),
   MONGO_URI: process.env.MONGO_URI,
-  ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET
+  ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
+  CLIENT_URL: process.env.CLIENT_URL
 } as const

@@ -97,3 +97,25 @@ export const signOut = async (req: Request, res: Response) => {
 
   return res.status(HTTP_STATUS.OK).json({ message: AUTH_MESSAGES.SIGN_OUT_SUCCESS })
 }
+
+export const refreshToken = async (req: Request, res: Response) => {
+  const token = req.cookies?.refreshToken
+
+  if (!token) {
+    throw new AppError(COMMON_MESSAGES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED)
+  }
+
+  const session = await Session.findOne({ refreshToken: token })
+
+  if (!session) {
+    throw new AppError(COMMON_MESSAGES.FORBIDDEN, HTTP_STATUS.FORBIDDEN)
+  }
+
+  if (session.expiresAt < new Date()) {
+    throw new AppError(COMMON_MESSAGES.FORBIDDEN, HTTP_STATUS.FORBIDDEN)
+  }
+
+  const accessToken = signAccessToken(session.userId.toString())
+
+  return res.status(HTTP_STATUS.OK).json({ accessToken })
+}

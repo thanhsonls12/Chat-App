@@ -7,13 +7,19 @@ import userRouter from './routes/userRoute.js'
 import { protectedRoute } from './middlewares/authMiddleware.js'
 import { envConfig } from './config/env.js'
 import { errorMiddleware } from './middlewares/errorMiddleware.js'
-
+import cors from 'cors'
 const app = express()
 const PORT = envConfig.PORT ?? 5001
 
 //middlewares
 app.use(express.json())
 app.use(cookieParser())
+app.use(
+  cors({
+    origin: envConfig.CLIENT_URL,
+    credentials: true
+  })
+)
 //public routes
 app.use('/api/auth', authRouter)
 
