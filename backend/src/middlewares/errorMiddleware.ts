@@ -1,6 +1,6 @@
 import { HTTP_STATUS } from '@/constants/httpStatus.js'
 import { COMMON_MESSAGES } from '@/constants/messages.js'
-import { AppError } from '@/utils/AppError.js'
+import { AppError, EntityError } from '@/utils/AppError.js'
 import { Request, Response, NextFunction } from 'express'
 export const errorMiddleware = (
   error: Error,
@@ -8,6 +8,12 @@ export const errorMiddleware = (
   res: Response,
   _next: NextFunction
 ) => {
+  if (error instanceof EntityError) {
+    return res.status(error.statusCode).json({
+      message: error.message,
+      errors: error.errors
+    })
+  }
   if (error instanceof AppError) {
     return res.status(error.statusCode).json({
       message: error.message

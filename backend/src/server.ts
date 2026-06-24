@@ -8,6 +8,7 @@ import { protectedRoute } from './middlewares/authMiddleware.js'
 import { envConfig } from './config/env.js'
 import { errorMiddleware } from './middlewares/errorMiddleware.js'
 import cors from 'cors'
+import friendRouter from './routes/friendRoute.js'
 const app = express()
 const PORT = envConfig.PORT ?? 5001
 
@@ -26,6 +27,8 @@ app.use('/api/auth', authRouter)
 //private routes
 
 app.use('/api/users', protectedRoute, userRouter)
+
+app.use('/api/friends', protectedRoute, friendRouter)
 
 app.use(errorMiddleware)
 connectDB().then(() => {

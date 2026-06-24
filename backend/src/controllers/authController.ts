@@ -15,13 +15,6 @@ export const signUp = async (
   res: Response
 ) => {
   const { username, password, email, firstName, lastName } = req.body
-  if (!username || !password || !email || !firstName || !lastName) {
-    throw new AppError(AUTH_MESSAGES.SIGN_UP_FIELDS_REQUIRED, HTTP_STATUS.BAD_REQUEST)
-  }
-  const duplicate = await User.findOne({ username })
-  if (duplicate) {
-    throw new AppError(AUTH_MESSAGES.USER_ALREADY_EXISTS, HTTP_STATUS.CONFLICT)
-  }
 
   const hashedPassword = await bcrypt.hash(password, 10)
 
@@ -40,9 +33,6 @@ export const signIn = async (
   res: Response
 ) => {
   const { username, password } = req.body
-  if (!username || !password) {
-    throw new AppError(AUTH_MESSAGES.SIGN_IN_FIELDS_REQUIRED, HTTP_STATUS.BAD_REQUEST)
-  }
 
   const user = await User.findOne({ username })
   if (!user) {
