@@ -9,6 +9,8 @@ import { envConfig } from './config/env.js'
 import { errorMiddleware } from './middlewares/errorMiddleware.js'
 import cors from 'cors'
 import friendRouter from './routes/friendRoute.js'
+import messageRouter from './routes/messageRoute.js'
+import conversationRouter from './routes/conversationRoute.js'
 const app = express()
 const PORT = envConfig.PORT ?? 5001
 
@@ -29,6 +31,10 @@ app.use('/api/auth', authRouter)
 app.use('/api/users', protectedRoute, userRouter)
 
 app.use('/api/friends', protectedRoute, friendRouter)
+
+app.use('/api/messages', protectedRoute, messageRouter)
+
+app.use('/api/conversations', protectedRoute, conversationRouter)
 
 app.use(errorMiddleware)
 connectDB().then(() => {

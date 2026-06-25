@@ -15,7 +15,9 @@ export const protectedRoute = async (req: Request, res: Response, next: NextFunc
   if (!token) {
     throw new AppError(COMMON_MESSAGES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED)
   }
+
   const { userId } = verifyAccessToken(token)
+
   const user = await User.findById(userId).select('-hashedPassword')
   if (!user) throw new AppError(USER_MESSAGES.USER_NOT_FOUND, HTTP_STATUS.NOT_FOUND)
   req.user = user

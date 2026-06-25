@@ -1,8 +1,11 @@
+import { HTTP_STATUS } from '@/constants/httpStatus.js'
+import { AppError } from '@/utils/AppError.js'
+
 const requiredEnvKeys = ['MONGO_URI', 'ACCESS_TOKEN_SECRET', 'CLIENT_URL'] as const
 
 for (const key of requiredEnvKeys) {
   if (!process.env[key]) {
-    throw new Error(`Missing environment variable: ${key}`)
+    throw new AppError(`Missing environment variable: ${key}`, HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
 }
 

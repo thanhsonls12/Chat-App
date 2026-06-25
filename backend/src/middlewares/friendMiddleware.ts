@@ -48,7 +48,7 @@ export const friendRequestIdValidator = validate(
     {
       requestId: {
         isMongoId: {
-          errorMessage: FRIEND_MESSAGES.RECEIVER_ID_MUST_BE_MONGO_ID
+          errorMessage: FRIEND_MESSAGES.FRIEND_REQUEST_ID_MUST_BE_MONGO_ID
         }
       }
     },

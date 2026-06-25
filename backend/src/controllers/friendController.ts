@@ -1,5 +1,5 @@
 import { HTTP_STATUS } from '@/constants/httpStatus.js'
-import { COMMON_MESSAGES, FRIEND_MESSAGES } from '@/constants/messages.js'
+import { COMMON_MESSAGES, FRIEND_MESSAGES, USER_MESSAGES } from '@/constants/messages.js'
 import Friend from '@/models/Friend.js'
 import FriendRequest from '@/models/FriendRequest.js'
 import User from '@/models/User.js'
@@ -17,7 +17,7 @@ export const sendFriendRequest = async (req: Request, res: Response) => {
   const userExists = await User.exists({ _id: to })
 
   if (!userExists) {
-    throw new AppError(FRIEND_MESSAGES.USER_NOT_FOUND, HTTP_STATUS.NOT_FOUND)
+    throw new AppError(USER_MESSAGES.USER_NOT_FOUND, HTTP_STATUS.NOT_FOUND)
   }
 
   let userA = from.toString()

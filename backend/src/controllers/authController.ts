@@ -22,7 +22,7 @@ export const signUp = async (
     username,
     hashedPassword,
     email,
-    displayName: `${firstName} ${lastName}`
+    displayName: `${lastName} ${firstName}`
   })
 
   return res.status(HTTP_STATUS.CREATED).json({ message: AUTH_MESSAGES.USER_CREATED })
