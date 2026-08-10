@@ -207,9 +207,9 @@ export const getMessages = async (req: Request, res: Response) => {
   let nextCursor
 
   if (messages.length > parsedLimit) {
+    messages.pop()
     const nextMessage = messages[messages.length - 1]
     nextCursor = nextMessage?.createdAt.toISOString()
-    messages.pop()
   }
 
   messages = messages.reverse()
