@@ -5,6 +5,7 @@ declare global {
       PORT?: string
       MONGO_URI: string
       ACCESS_TOKEN_SECRET: string
+      CLIENT_URL: string
     }
   }
 }

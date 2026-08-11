@@ -11,18 +11,19 @@ import {
 } from '@/middlewares/friendMiddleware.js'
 import { asyncHandler } from '@/utils/asyncHandler.js'
 import express from 'express'
+import type { FriendRequestIdParams } from '@/types/friend.types.js'
 
 const friendRouter = express.Router()
 
 friendRouter.post('/requests', sendFriendRequestValidator, asyncHandler(sendFriendRequest))
 
-friendRouter.post(
+friendRouter.post<FriendRequestIdParams>(
   '/requests/:requestId/accept',
   friendRequestIdValidator,
   asyncHandler(acceptFriendRequest)
 )
 
-friendRouter.post(
+friendRouter.post<FriendRequestIdParams>(
   '/requests/:requestId/decline',
   friendRequestIdValidator,
   asyncHandler(declineFriendRequest)

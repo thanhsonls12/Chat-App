@@ -4,8 +4,12 @@ import Friend from '@/models/Friend.js'
 import FriendRequest from '@/models/FriendRequest.js'
 import User from '@/models/User.js'
 import { AppError } from '@/utils/AppError.js'
-import { Request, Response } from 'express'
-export const sendFriendRequest = async (req: Request, res: Response) => {
+import type { EmptyRequest, TypedRequest, TypedResponse } from '@/types/api.types.js'
+import type { FriendRequestIdParams, SendFriendRequestBody } from '@/types/friend.types.js'
+export const sendFriendRequest = async (
+  req: TypedRequest<SendFriendRequestBody>,
+  res: TypedResponse
+) => {
   const { to, message } = req.body
 
   if (!req.user) {
@@ -46,7 +50,7 @@ export const sendFriendRequest = async (req: Request, res: Response) => {
   const request = await FriendRequest.create({
     from,
     to,
-    message
+    ...(message !== undefined ? { message } : {})
   })
 
   return res.status(HTTP_STATUS.CREATED).json({
@@ -55,7 +59,10 @@ export const sendFriendRequest = async (req: Request, res: Response) => {
   })
 }
 
-export const acceptFriendRequest = async (req: Request, res: Response) => {
+export const acceptFriendRequest = async (
+  req: TypedRequest<unknown, FriendRequestIdParams>,
+  res: TypedResponse
+) => {
   const { requestId } = req.params
   if (!req.user) {
     throw new AppError(COMMON_MESSAGES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED)
@@ -91,7 +98,10 @@ export const acceptFriendRequest = async (req: Request, res: Response) => {
   })
 }
 
-export const declineFriendRequest = async (req: Request, res: Response) => {
+export const declineFriendRequest = async (
+  req: TypedRequest<unknown, FriendRequestIdParams>,
+  res: TypedResponse
+) => {
   const { requestId } = req.params
   if (!req.user) {
     throw new AppError(COMMON_MESSAGES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED)
@@ -110,10 +120,10 @@ export const declineFriendRequest = async (req: Request, res: Response) => {
 
   await FriendRequest.findByIdAndDelete(requestId)
 
-  return res.status(HTTP_STATUS.NO_CONTENT)
+  return res.status(HTTP_STATUS.NO_CONTENT).send()
 }
 
-export const getAllFriends = async (req: Request, res: Response) => {
+export const getAllFriends = async (req: EmptyRequest, res: TypedResponse) => {
   if (!req.user) {
     throw new AppError(COMMON_MESSAGES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED)
   }
@@ -140,7 +150,7 @@ export const getAllFriends = async (req: Request, res: Response) => {
   })
 }
 
-export const getFriendRequests = async (req: Request, res: Response) => {
+export const getFriendRequests = async (req: EmptyRequest, res: TypedResponse) => {
   if (!req.user) {
     throw new AppError(COMMON_MESSAGES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED)
   }

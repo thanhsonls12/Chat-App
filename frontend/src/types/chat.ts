@@ -50,3 +50,21 @@ export interface Message {
   createdAt: string
   isOwn?: boolean
 }
+
+export interface NewMessageSocketPayload {
+  message: Omit<Message, 'content'> & {
+    content?: string | null
+  }
+  conversation: {
+    _id: string
+    lastMessageAt: string
+    lastMessage: {
+      _id: string
+      senderId: string
+      content?: string | null
+      imgUrl?: string | null
+      createdAt: string
+    }
+  }
+  unreadCounts: Record<string, number>
+}

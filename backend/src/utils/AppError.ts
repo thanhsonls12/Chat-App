@@ -4,7 +4,7 @@ type ErrorType = Record<
   string,
   {
     msg: string
-    [key: string]: any
+    [key: string]: unknown
   }
 >
 

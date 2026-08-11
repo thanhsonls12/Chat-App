@@ -6,6 +6,10 @@ import data from '@emoji-mart/data'
 interface EmojiPickerProps {
   onChange: (value: string) => void
 }
+
+interface EmojiSelection {
+  native: string
+}
 export default function EmojiPicker({ onChange }: EmojiPickerProps) {
   const { isDark } = useThemeStore()
 
@@ -22,7 +26,7 @@ export default function EmojiPicker({ onChange }: EmojiPickerProps) {
         <Picker
           theme={isDark ? 'dark' : 'light'}
           data={data}
-          onEmojiSelect={(emoji: any) => onChange(emoji.native)}
+          onEmojiSelect={(emoji: EmojiSelection) => onChange(emoji.native)}
           emojiSize={24}
         />
       </PopoverContent>

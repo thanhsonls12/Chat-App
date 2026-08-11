@@ -23,7 +23,7 @@ export default function GroupChatCard({
   const name = conversation.group.name ?? ''
   const handleSelectConversation = async (id: string) => {
     setActiveConversation(id)
-    if (!messages[id]) {
+    if (!messages[id] || messages[id].nextCursor === undefined) {
       await fetchMessages()
     }
   }

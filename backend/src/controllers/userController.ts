@@ -2,8 +2,8 @@ import { HTTP_STATUS } from '@/constants/httpStatus.js'
 import { COMMON_MESSAGES } from '@/constants/messages.js'
 
 import { AppError } from '@/utils/AppError.js'
-import { Request, Response } from 'express'
-export const authMe = async (req: Request, res: Response) => {
+import type { EmptyRequest, TypedResponse } from '@/types/api.types.js'
+export const authMe = async (req: EmptyRequest, res: TypedResponse) => {
   if (!req.user) {
     throw new AppError(COMMON_MESSAGES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED)
   }

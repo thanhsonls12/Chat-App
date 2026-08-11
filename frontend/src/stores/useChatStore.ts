@@ -4,6 +4,9 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { useAuthStore } from './useAuthStore'
 
+const appendUniqueMessage = <T extends { _id: string }>(items: T[], message: T) =>
+  items.some((item) => item._id === message._id) ? items : [...items, message]
+
 export const useChatStore = create<ChatState>()(
   persist(
     (set, get) => ({
@@ -56,7 +59,11 @@ export const useChatStore = create<ChatState>()(
           }))
           set((state) => {
             const prev = state.messages[convoId]?.items ?? []
-            const merged = prev.length > 0 ? [...processed, ...prev] : processed
+            const existingIds = new Set(prev.map((message) => message._id))
+            const merged = [
+              ...processed.filter((message) => !existingIds.has(message._id)),
+              ...prev,
+            ]
             return {
               messages: {
                 ...state.messages,
@@ -66,12 +73,48 @@ export const useChatStore = create<ChatState>()(
                   nextCursor: cursor ?? null,
                 },
               },
+              conversations: state.conversations.map((conversation) =>
+                conversation._id === convoId && user
+                  ? {
+                      ...conversation,
+                      unreadCounts: {
+                        ...conversation.unreadCounts,
+                        [user._id]: 0,
+                      },
+                    }
+                  : conversation
+              ),
             }
           })
         } catch (error) {
           console.error(error)
         } finally {
           set({ messageLoading: false })
+        }
+      },
+      markConversationRead: async (conversationId) => {
+        const { user } = useAuthStore.getState()
+        if (!user) return
+
+        set((state) => ({
+          conversations: state.conversations.map((conversation) =>
+            conversation._id === conversationId
+              ? {
+                  ...conversation,
+                  unreadCounts: {
+                    ...conversation.unreadCounts,
+                    [user._id]: 0,
+                  },
+                }
+              : conversation
+          ),
+        }))
+
+        try {
+          await chatService.markConversationRead(conversationId)
+        } catch (error) {
+          console.error(error)
+          void get().fetchConversations()
         }
       },
       sendDirectMessage: async (recipientId, content, imgUrl) => {
@@ -83,56 +126,104 @@ export const useChatStore = create<ChatState>()(
           activeConversationId ?? undefined
         )
         set((state) => ({
-            messages: {
-              ...state.messages,
-              [message.conversationId]: {
-                items: [...(state.messages[message.conversationId]?.items ?? []), { ...message, isOwn: true }],
-                hasMore: state.messages[message.conversationId]?.hasMore ?? false,
-                nextCursor: state.messages[message.conversationId]?.nextCursor ?? null,
-              },
+          messages: {
+            ...state.messages,
+            [message.conversationId]: {
+              items: appendUniqueMessage(
+                state.messages[message.conversationId]?.items ?? [],
+                { ...message, isOwn: true }
+              ),
+              hasMore: state.messages[message.conversationId]?.hasMore ?? false,
+              nextCursor:
+                state.messages[message.conversationId]?.nextCursor ?? null,
             },
-            conversations: state.conversations.map((c) =>
-              c._id === message.conversationId
-                ? {
-                    ...c,
-                    seenBy: [],
-                    lastMessageAt: message.createdAt,
-                    lastMessage: {
-                      _id: message._id,
-                      content: message.content ?? '',
-                      createdAt: message.createdAt,
-                      sender: useAuthStore.getState().user!,
-                    },
-                  }
-                : c
-            ),
+          },
+          conversations: state.conversations.map((c) =>
+            c._id === message.conversationId
+              ? {
+                  ...c,
+                  seenBy: [useAuthStore.getState().user!],
+                  lastMessageAt: message.createdAt,
+                  lastMessage: {
+                    _id: message._id,
+                    content: message.content ?? '',
+                    createdAt: message.createdAt,
+                    sender: useAuthStore.getState().user!,
+                  },
+                }
+              : c
+          ),
         }))
       },
       sendGroupMessage: async (conversationId, content, imgUrl) => {
-        const message = await chatService.sendGroupMessage(conversationId, content, imgUrl)
+        const message = await chatService.sendGroupMessage(
+          conversationId,
+          content,
+          imgUrl
+        )
         set((state) => ({
+          messages: {
+            ...state.messages,
+            [message.conversationId]: {
+              items: appendUniqueMessage(
+                state.messages[message.conversationId]?.items ?? [],
+                { ...message, isOwn: true }
+              ),
+              hasMore: state.messages[message.conversationId]?.hasMore ?? false,
+              nextCursor:
+                state.messages[message.conversationId]?.nextCursor ?? null,
+            },
+          },
+          conversations: state.conversations.map((c) =>
+            c._id === message.conversationId
+              ? {
+                  ...c,
+                  seenBy: [useAuthStore.getState().user!],
+                  lastMessageAt: message.createdAt,
+                  lastMessage: {
+                    _id: message._id,
+                    content: message.content ?? '',
+                    createdAt: message.createdAt,
+                    sender: useAuthStore.getState().user!,
+                  },
+                }
+              : c
+          ),
+        }))
+      },
+      addMessage: (message) => {
+        const { user } = useAuthStore.getState()
+        const convoId = message.conversationId
+        set((state) => {
+          const current = state.messages[convoId]
+          if (current?.items.some((item) => item._id === message._id)) {
+            return state
+          }
+          return {
             messages: {
               ...state.messages,
-              [message.conversationId]: {
-                items: [...(state.messages[message.conversationId]?.items ?? []), { ...message, isOwn: true }],
-                hasMore: state.messages[message.conversationId]?.hasMore ?? false,
-                nextCursor: state.messages[message.conversationId]?.nextCursor ?? null,
+              [convoId]: {
+                items: [
+                  ...(current?.items ?? []),
+                  { ...message, isOwn: message.senderId === user?._id },
+                ],
+                hasMore: current?.hasMore ?? true,
+                nextCursor: current?.nextCursor,
               },
             },
-            conversations: state.conversations.map((c) =>
-              c._id === message.conversationId
-                ? {
-                    ...c,
-                    seenBy: [],
-                    lastMessageAt: message.createdAt,
-                    lastMessage: {
-                      _id: message._id,
-                      content: message.content ?? '',
-                      createdAt: message.createdAt,
-                      sender: useAuthStore.getState().user!,
-                    },
-                  }
-                : c
+          }
+        })
+      },
+      updateConversation: (conversation) => {
+        set((state) => ({
+          conversations: state.conversations
+            .map((item) =>
+              item._id === conversation._id ? conversation : item
+            )
+            .sort(
+              (a, b) =>
+                new Date(b.lastMessageAt ?? 0).getTime() -
+                new Date(a.lastMessageAt ?? 0).getTime()
             ),
         }))
       },

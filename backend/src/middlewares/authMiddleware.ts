@@ -67,7 +67,8 @@ export const signUpValidator = validate(
         trim: true,
         custom: {
           options: async (value) => {
-            const user = await User.findOne({ username: value })
+            const normalizedUsername = String(value).trim().toLowerCase()
+            const user = await User.findOne({ username: normalizedUsername })
             if (user) {
               throw new AppError(AUTH_MESSAGES.USERNAME_ALREADY_EXISTS, HTTP_STATUS.CONFLICT)
             }

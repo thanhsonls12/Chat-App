@@ -9,8 +9,13 @@ import Conversation from '@/models/Conversation.js'
 import Message from '@/models/Message.js'
 import User from '@/models/User.js'
 import { AppError } from '@/utils/AppError.js'
-import { Request, Response } from 'express'
 import { Types } from 'mongoose'
+import type { EmptyRequest, TypedRequest, TypedResponse } from '@/types/api.types.js'
+import type {
+  CreateConversationBody,
+  GetMessagesParams,
+  GetMessagesQuery
+} from '@/types/conversation.types.js'
 
 type PopulatedParticipant = {
   userId: {
@@ -21,7 +26,10 @@ type PopulatedParticipant = {
   joined?: Date
 }
 
-export const createConversation = async (req: Request, res: Response) => {
+export const createConversation = async (
+  req: TypedRequest<CreateConversationBody>,
+  res: TypedResponse
+) => {
   const { type, name, memberIds } = req.body
 
   if (!req.user) {
@@ -78,7 +86,7 @@ export const createConversation = async (req: Request, res: Response) => {
         userId: id
       })),
       group: {
-        name,
+        name: name ?? null,
         createdBy: userId
       },
       unreadCounts: {}
@@ -107,7 +115,7 @@ export const createConversation = async (req: Request, res: Response) => {
   })
 }
 
-export const getConversation = async (req: Request, res: Response) => {
+export const getConversation = async (req: EmptyRequest, res: TypedResponse) => {
   if (!req.user) {
     throw new AppError(COMMON_MESSAGES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED)
   }
@@ -155,7 +163,10 @@ export const getConversation = async (req: Request, res: Response) => {
   return res.status(HTTP_STATUS.OK).json({ conversations: formatted })
 }
 
-export const getMessages = async (req: Request, res: Response) => {
+export const getMessages = async (
+  req: TypedRequest<unknown, GetMessagesParams, GetMessagesQuery>,
+  res: TypedResponse
+) => {
   const { conversationId } = req.params
   const { limit = 50, cursor } = req.query
   if (!conversationId) {
@@ -198,10 +209,6 @@ export const getMessages = async (req: Request, res: Response) => {
   let messages = await Message.find(query)
     .sort({ createdAt: -1 })
     .limit(parsedLimit + 1)
-    .populate({
-      path: 'senderId',
-      select: 'displayName avatarUrl'
-    })
     .lean()
 
   let nextCursor
@@ -223,4 +230,49 @@ export const getMessages = async (req: Request, res: Response) => {
   await conversation.save()
 
   return res.status(HTTP_STATUS.OK).json({ messages, nextCursor })
+}
+
+export const markConversationRead = async (
+  req: TypedRequest<unknown, GetMessagesParams>,
+  res: TypedResponse
+) => {
+  if (!req.user) {
+    throw new AppError(COMMON_MESSAGES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED)
+  }
+
+  const { conversationId } = req.params
+  const userId = req.user._id
+  const conversation = await Conversation.findById(conversationId)
+
+  if (!conversation) {
+    throw new AppError(CONVERSATION_MESSAGES.CONVERSATION_NOT_FOUND, HTTP_STATUS.NOT_FOUND)
+  }
+
+  const isParticipant = conversation.participants.some(
+    (participant) => participant.userId.toString() === userId.toString()
+  )
+
+  if (!isParticipant) {
+    throw new AppError(CONVERSATION_MESSAGES.NOT_CONVERSATION_MEMBER, HTTP_STATUS.FORBIDDEN)
+  }
+
+  conversation.unreadCounts.set(userId.toString(), 0)
+  if (!conversation.seenBy.some((id) => id.toString() === userId.toString())) {
+    conversation.seenBy.push(userId)
+  }
+  await conversation.save()
+
+  return res.status(HTTP_STATUS.NO_CONTENT).send()
+}
+
+export const getUserConversationsForSocketIO = async (userId: string) => {
+  const conversations = await Conversation.find(
+    {
+      'participants.userId': userId
+    },
+    {
+      _id: 1
+    }
+  )
+  return conversations.map((c) => c._id.toString())
 }

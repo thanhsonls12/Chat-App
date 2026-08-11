@@ -11,7 +11,8 @@ import cors from 'cors'
 import friendRouter from './routes/friendRoute.js'
 import messageRouter from './routes/messageRoute.js'
 import conversationRouter from './routes/conversationRoute.js'
-const app = express()
+import { app, server } from './socket/index.js'
+
 const PORT = envConfig.PORT ?? 5001
 
 //middlewares
@@ -38,7 +39,7 @@ app.use('/api/conversations', protectedRoute, conversationRouter)
 
 app.use(errorMiddleware)
 connectDB().then(() => {
-  app.listen(PORT, () => {
+  server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
   })
 })

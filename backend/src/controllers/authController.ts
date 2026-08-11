@@ -2,24 +2,21 @@ import { HTTP_STATUS } from '@/constants/httpStatus.js'
 import { AUTH_MESSAGES, COMMON_MESSAGES } from '@/constants/messages.js'
 import User from '@/models/User.js'
 import bcrypt from 'bcrypt'
-import { Request, Response } from 'express'
 
 import Session from '@/models/Session.js'
 import { SignInBody, SignUpBody } from '@/types/auth.types.js'
-import { ParamsDictionary } from 'express-serve-static-core'
+import type { EmptyRequest, TypedRequest, TypedResponse } from '@/types/api.types.js'
 import { generateRefreshToken, REFRESH_TOKEN_TTL_MS, signAccessToken } from '@/utils/jwt.js'
 import { AppError } from '@/utils/AppError.js'
 
-export const signUp = async (
-  req: Request<ParamsDictionary, unknown, SignUpBody>,
-  res: Response
-) => {
+export const signUp = async (req: TypedRequest<SignUpBody>, res: TypedResponse) => {
   const { username, password, email, firstName, lastName } = req.body
+  const normalizedUsername = username.trim().toLowerCase()
 
   const hashedPassword = await bcrypt.hash(password, 10)
 
   await User.create({
-    username,
+    username: normalizedUsername,
     hashedPassword,
     email,
     displayName: `${lastName} ${firstName}`
@@ -28,13 +25,11 @@ export const signUp = async (
   return res.status(HTTP_STATUS.CREATED).json({ message: AUTH_MESSAGES.USER_CREATED })
 }
 
-export const signIn = async (
-  req: Request<ParamsDictionary, unknown, SignInBody>,
-  res: Response
-) => {
+export const signIn = async (req: TypedRequest<SignInBody>, res: TypedResponse) => {
   const { username, password } = req.body
+  const normalizedUsername = username.trim().toLowerCase()
 
-  const user = await User.findOne({ username })
+  const user = await User.findOne({ username: normalizedUsername })
   if (!user) {
     throw new AppError(AUTH_MESSAGES.INVALID_CREDENTIALS, HTTP_STATUS.UNAUTHORIZED)
   }
@@ -68,7 +63,7 @@ export const signIn = async (
   })
 }
 
-export const signOut = async (req: Request, res: Response) => {
+export const signOut = async (req: EmptyRequest, res: TypedResponse) => {
   const token = req.cookies?.refreshToken
 
   if (!token) {
@@ -88,7 +83,7 @@ export const signOut = async (req: Request, res: Response) => {
   return res.status(HTTP_STATUS.OK).json({ message: AUTH_MESSAGES.SIGN_OUT_SUCCESS })
 }
 
-export const refreshToken = async (req: Request, res: Response) => {
+export const refreshToken = async (req: EmptyRequest, res: TypedResponse) => {
   const token = req.cookies?.refreshToken
 
   if (!token) {

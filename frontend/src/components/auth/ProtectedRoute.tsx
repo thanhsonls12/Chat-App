@@ -1,6 +1,7 @@
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useEffect, useState } from 'react'
 import { Navigate, Outlet } from 'react-router'
+import { useChatStore } from '@/stores/useChatStore'
 
 export default function ProtectedRoute() {
   const { accessToken, loading, fetchMe, refresh } = useAuthStore()
@@ -18,6 +19,10 @@ export default function ProtectedRoute() {
       const auth = useAuthStore.getState()
       if (auth.accessToken && !auth.user) {
         await fetchMe()
+      }
+
+      if (useAuthStore.getState().accessToken) {
+        await useChatStore.getState().fetchConversations()
       }
 
       if (!ignore) {

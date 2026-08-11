@@ -33,6 +33,9 @@ export const chatService = {
       cursor: res.data.nextCursor,
     }
   },
+  async markConversationRead(conversationId: string): Promise<void> {
+    await api.patch(`/conversations/${conversationId}/read`)
+  },
   async sendDirectMessage(
     recipientId: string,
     content: string = '',

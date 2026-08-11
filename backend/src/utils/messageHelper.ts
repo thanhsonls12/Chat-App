@@ -1,6 +1,7 @@
 import { ConversationDocument } from '@/models/Conversation.js'
 import { MessageDocument } from '@/models/Message.js'
 import { Types } from 'mongoose'
+import type { AppServer, NewMessagePayload } from '@/types/socket.types.js'
 
 export const updateConversationAfterCreateMessage = (
   conversation: ConversationDocument,
@@ -8,7 +9,7 @@ export const updateConversationAfterCreateMessage = (
   senderId: Types.ObjectId
 ) => {
   conversation.set({
-    seenBy: [],
+    seenBy: [senderId],
     lastMessageAt: message.createdAt,
     lastMessage: {
       _id: message._id,
@@ -24,4 +25,43 @@ export const updateConversationAfterCreateMessage = (
     const prevCount = conversation.unreadCounts.get(memberId) || 0
     conversation.unreadCounts.set(memberId, isSender ? 0 : prevCount + 1)
   })
+}
+
+export const emitNewMessage = (
+  io: AppServer,
+  conversation: ConversationDocument,
+  message: MessageDocument
+) => {
+  const conversationId = conversation._id.toString()
+  const participantRooms = conversation.participants.map(
+    (participant) => `user:${participant.userId.toString()}`
+  )
+
+  io.in(participantRooms).socketsJoin(conversationId)
+
+  const createdAt = message.createdAt.toISOString()
+  const payload: NewMessagePayload = {
+    message: {
+      _id: message._id.toString(),
+      conversationId,
+      senderId: message.senderId.toString(),
+      ...(message.content !== undefined ? { content: message.content } : {}),
+      ...(message.imgUrl !== undefined ? { imgUrl: message.imgUrl } : {}),
+      createdAt
+    },
+    conversation: {
+      _id: conversationId,
+      lastMessageAt: (conversation.lastMessageAt ?? message.createdAt).toISOString(),
+      lastMessage: {
+        _id: message._id.toString(),
+        senderId: message.senderId.toString(),
+        ...(message.content !== undefined ? { content: message.content } : {}),
+        ...(message.imgUrl !== undefined ? { imgUrl: message.imgUrl } : {}),
+        createdAt
+      }
+    },
+    unreadCounts: Object.fromEntries(conversation.unreadCounts.entries())
+  }
+
+  io.to(conversationId).emit('new-message', payload)
 }

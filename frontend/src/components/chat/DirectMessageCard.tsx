@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils'
 import UserAvatar from './UserAvatar'
 import StatusBadge from './StatusBadge'
 import UnreadCountBadge from './UnreadCountBadge'
+import { useSocketStore } from '@/stores/useSocketStore'
 
 export default function DirectMessageCard({
   conversation,
@@ -19,6 +20,7 @@ export default function DirectMessageCard({
     messages,
     fetchMessages,
   } = useChatStore()
+  const { onlineUsers } = useSocketStore()
   if (!user) return null
 
   const otherUser = conversation.participants.find((p) => p._id !== user._id)
@@ -27,7 +29,7 @@ export default function DirectMessageCard({
   const lastMessage = conversation.lastMessage?.content ?? ''
   const handleSelectConversation = async (id: string) => {
     setActiveConversation(id)
-    if (!messages[id]) {
+    if (!messages[id] || messages[id].nextCursor === undefined) {
       await fetchMessages()
     }
   }
@@ -50,7 +52,11 @@ export default function DirectMessageCard({
             name={otherUser.displayName ?? ''}
             avatarUrl={otherUser.avatarUrl ?? undefined}
           />
-          <StatusBadge status="offline" />
+          <StatusBadge
+            status={
+              onlineUsers.includes(otherUser?._id ?? '') ? 'online' : 'offline'
+            }
+          />
           {unreadCount > 0 && <UnreadCountBadge unreadCount={unreadCount} />}
         </>
       }

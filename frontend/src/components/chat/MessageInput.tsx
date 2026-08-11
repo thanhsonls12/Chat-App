@@ -42,7 +42,7 @@ export default function MessageInput({
       if (selectedConvo.type === 'direct') {
         const otherUser = selectedConvo.participants.find((p) => p._id !== user._id)
         if (!otherUser) {
-          toast.error('KhÃ´ng tÃ¬m tháº¥y ngÆ°á»�i nháº­n tin nháº¯n.')
+          toast.error('Không tìm thấy người nhận tin nhắn.')
           return
         }
         await sendDirectMessage(otherUser._id, value)
