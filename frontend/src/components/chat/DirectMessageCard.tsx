@@ -13,8 +13,12 @@ export default function DirectMessageCard({
   conversation: Conversation
 }) {
   const { user } = useAuthStore()
-  const { activeConversationId, setActiveConversation, messages } =
-    useChatStore()
+  const {
+    activeConversationId,
+    setActiveConversation,
+    messages,
+    fetchMessages,
+  } = useChatStore()
   if (!user) return null
 
   const otherUser = conversation.participants.find((p) => p._id !== user._id)
@@ -24,6 +28,7 @@ export default function DirectMessageCard({
   const handleSelectConversation = async (id: string) => {
     setActiveConversation(id)
     if (!messages[id]) {
+      await fetchMessages()
     }
   }
   return (

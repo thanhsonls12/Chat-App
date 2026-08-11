@@ -1,5 +1,13 @@
 import { useAuthStore } from '@/stores/useAuthStore'
-import axios from 'axios'
+import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
+
+interface RefreshTokenResponse {
+  accessToken: string
+}
+
+type RetryableRequestConfig = InternalAxiosRequestConfig & {
+  _retry?: boolean
+}
 
 const api = axios.create({
   baseURL:
@@ -19,8 +27,8 @@ api.interceptors.request.use((config) => {
 
 api.interceptors.response.use(
   (res) => res,
-  async (error) => {
-    const originalRequest = error.config
+  async (error: AxiosError) => {
+    const originalRequest = error.config as RetryableRequestConfig | undefined
 
     if (
       !originalRequest ||
@@ -31,12 +39,10 @@ api.interceptors.response.use(
       return Promise.reject(error)
     }
 
-    originalRequest._retryCount = originalRequest._retryCount || 0
-
-    if (error.response?.status === 403 && originalRequest._retryCount < 4) {
+    if (error.response?.status === 401 && !originalRequest._retry) {
       try {
-        originalRequest._retryCount++
-        const res = await api.post(
+        originalRequest._retry = true
+        const res = await api.post<RefreshTokenResponse>(
           '/auth/refresh',
           {},
           { withCredentials: true }

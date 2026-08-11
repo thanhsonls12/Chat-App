@@ -1,5 +1,17 @@
 import api from '@/lib/axios'
-import type { ConversationResponse, MessagesResponse } from '@/types/chat'
+import type { ConversationResponse, Message } from '@/types/chat'
+
+interface FetchMessageProps {
+  messages: Message[]
+  cursor?: string
+}
+
+interface SendMessageResponse {
+  message: string
+  data: Message
+}
+
+const pageLimit = 50
 
 export const chatService = {
   async fetchConversations(): Promise<ConversationResponse> {
@@ -9,10 +21,42 @@ export const chatService = {
   async fetchMessages(
     conversationId: string,
     cursor?: string | null
-  ): Promise<MessagesResponse> {
+  ): Promise<FetchMessageProps> {
     const res = await api.get(`/conversations/${conversationId}/messages`, {
-      params: { cursor: cursor ?? undefined },
+      params: {
+        limit: pageLimit,
+        ...(cursor ? { cursor } : {}),
+      },
     })
-    return res.data
+    return {
+      messages: res.data.messages,
+      cursor: res.data.nextCursor,
+    }
+  },
+  async sendDirectMessage(
+    recipientId: string,
+    content: string = '',
+    imgUrl?: string,
+    conversationId?: string
+  ): Promise<Message> {
+    const res = await api.post<SendMessageResponse>('/messages/direct', {
+      recipientId,
+      content,
+      imgUrl,
+      conversationId,
+    })
+    return res.data.data
+  },
+  async sendGroupMessage(
+    conversationId: string,
+    content: string = '',
+    imgUrl?: string
+  ): Promise<Message> {
+    const res = await api.post<SendMessageResponse>('/messages/group', {
+      conversationId,
+      content,
+      imgUrl,
+    })
+    return res.data.data
   },
 }

@@ -11,8 +11,12 @@ export default function GroupChatCard({
   conversation: Conversation
 }) {
   const { user } = useAuthStore()
-  const { activeConversationId, setActiveConversation, messages } =
-    useChatStore()
+  const {
+    activeConversationId,
+    setActiveConversation,
+    messages,
+    fetchMessages,
+  } = useChatStore()
 
   if (!user) return null
   const unreadCount = conversation.unreadCounts[user._id]
@@ -20,7 +24,7 @@ export default function GroupChatCard({
   const handleSelectConversation = async (id: string) => {
     setActiveConversation(id)
     if (!messages[id]) {
-      // Fetch messages for the conversation if not already loaded
+      await fetchMessages()
     }
   }
   return (
