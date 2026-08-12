@@ -7,10 +7,15 @@ import { LoaderCircle } from 'lucide-react'
 
 const LOAD_MORE_THRESHOLD = 80
 
+const NEAR_BOTTOM_THRESHOLD = 120
+
 export default function ChatWindowBody() {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const initializedConversationRef = useRef<string | null>(null)
   const loadingOlderRef = useRef(false)
+  const prevMessageCountRef = useRef(0)
+  const prevLastMessageIdRef = useRef<string | null>(null)
+  const stickToBottomRef = useRef(true)
   const {
     activeConversationId,
     conversations,
@@ -31,14 +36,30 @@ export default function ChatWindowBody() {
 
   const hasMore = currentMessageState?.hasMore ?? false
 
+  // Initial open + new messages at bottom (not when prepending older pages)
   useLayoutEffect(() => {
     if (!activeConversationId || messages.length === 0) return
-    if (initializedConversationRef.current === activeConversationId) return
     const container = scrollContainerRef.current
     if (!container) return
-    container.scrollTop = container.scrollHeight
-    initializedConversationRef.current = activeConversationId
-  }, [activeConversationId, messages.length])
+
+    const lastId = messages[messages.length - 1]?._id ?? null
+    const isNewConversation =
+      initializedConversationRef.current !== activeConversationId
+    const countIncreased = messages.length > prevMessageCountRef.current
+    const lastChanged = lastId !== prevLastMessageIdRef.current
+    const appendedAtBottom = countIncreased && lastChanged
+
+    if (isNewConversation) {
+      container.scrollTop = container.scrollHeight
+      stickToBottomRef.current = true
+      initializedConversationRef.current = activeConversationId
+    } else if (appendedAtBottom && stickToBottomRef.current) {
+      container.scrollTop = container.scrollHeight
+    }
+
+    prevMessageCountRef.current = messages.length
+    prevLastMessageIdRef.current = lastId
+  }, [activeConversationId, messages])
 
   const loadOlderMessages = useCallback(async () => {
     const container = scrollContainerRef.current
@@ -79,6 +100,11 @@ export default function ChatWindowBody() {
   const handleScroll = useCallback(() => {
     const container = scrollContainerRef.current
     if (!container) return
+
+    const distanceFromBottom =
+      container.scrollHeight - container.scrollTop - container.clientHeight
+    stickToBottomRef.current = distanceFromBottom < NEAR_BOTTOM_THRESHOLD
+
     if (container.scrollTop < LOAD_MORE_THRESHOLD) {
       void loadOlderMessages()
     }

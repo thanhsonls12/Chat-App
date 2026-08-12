@@ -8,17 +8,30 @@ import { SignInBody, SignUpBody } from '@/types/auth.types.js'
 import type { EmptyRequest, TypedRequest, TypedResponse } from '@/types/api.types.js'
 import { generateRefreshToken, REFRESH_TOKEN_TTL_MS, signAccessToken } from '@/utils/jwt.js'
 import { AppError } from '@/utils/AppError.js'
+import { envConfig } from '@/config/env.js'
 
 export const signUp = async (req: TypedRequest<SignUpBody>, res: TypedResponse) => {
   const { username, password, email, firstName, lastName } = req.body
   const normalizedUsername = username.trim().toLowerCase()
+  const normalizedEmail = email.trim().toLowerCase()
+
+  const existingUser = await User.findOne({
+    $or: [{ username: normalizedUsername }, { email: normalizedEmail }]
+  })
+
+  if (existingUser) {
+    if (existingUser.username === normalizedUsername) {
+      throw new AppError(AUTH_MESSAGES.USERNAME_ALREADY_EXISTS, HTTP_STATUS.CONFLICT)
+    }
+    throw new AppError(AUTH_MESSAGES.EMAIL_ALREADY_EXISTS, HTTP_STATUS.CONFLICT)
+  }
 
   const hashedPassword = await bcrypt.hash(password, 10)
 
   await User.create({
     username: normalizedUsername,
     hashedPassword,
-    email,
+    email: normalizedEmail,
     displayName: `${lastName} ${firstName}`
   })
 
@@ -50,10 +63,11 @@ export const signIn = async (req: TypedRequest<SignInBody>, res: TypedResponse) 
     expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL_MS)
   })
 
+  const isProduction = envConfig.NODE_ENV === 'production'
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
-    secure: true,
-    sameSite: 'none',
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax',
     maxAge: REFRESH_TOKEN_TTL_MS
   })
 
@@ -74,10 +88,11 @@ export const signOut = async (req: EmptyRequest, res: TypedResponse) => {
     refreshToken: token
   })
 
+  const isProduction = envConfig.NODE_ENV === 'production'
   res.clearCookie('refreshToken', {
     httpOnly: true,
-    secure: true,
-    sameSite: 'none'
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax'
   })
 
   return res.status(HTTP_STATUS.OK).json({ message: AUTH_MESSAGES.SIGN_OUT_SUCCESS })

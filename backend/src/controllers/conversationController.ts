@@ -50,6 +50,10 @@ export const createConversation = async (
 
   const userId = req.user._id
 
+  if (type !== 'direct' && type !== 'group') {
+    throw new AppError(CONVERSATION_MESSAGES.TYPE_MUST_BE_VALID, HTTP_STATUS.BAD_REQUEST)
+  }
+
   let conversation
   if (type === 'direct') {
     const participantId = memberIds[0]
@@ -223,17 +227,24 @@ export const getMessages = async (
 
   const query: {
     conversationId: string
-    createdAt?: {
-      $lt: Date
-    }
+    $or?: Array<{ createdAt: { $lt: Date } } | { createdAt: Date; _id: { $lt: Types.ObjectId } }>
   } = { conversationId: conversationIdString }
 
   if (cursor) {
-    query.createdAt = { $lt: new Date(cursor as string) }
+    const [cursorDate, cursorId] = String(cursor).split('_')
+    const parsedCursorDate = new Date(cursorDate ?? cursor)
+    if (cursorId) {
+      query.$or = [
+        { createdAt: { $lt: parsedCursorDate } },
+        { createdAt: parsedCursorDate, _id: { $lt: new Types.ObjectId(cursorId) } }
+      ]
+    } else {
+      query.$or = [{ createdAt: { $lt: parsedCursorDate } }]
+    }
   }
 
   let messages = await Message.find(query)
-    .sort({ createdAt: -1 })
+    .sort({ createdAt: -1, _id: -1 })
     .limit(parsedLimit + 1)
     .lean()
 
@@ -242,7 +253,9 @@ export const getMessages = async (
   if (messages.length > parsedLimit) {
     messages.pop()
     const nextMessage = messages[messages.length - 1]
-    nextCursor = nextMessage?.createdAt.toISOString()
+    nextCursor = nextMessage
+      ? `${nextMessage.createdAt.toISOString()}_${nextMessage._id.toString()}`
+      : undefined
   }
 
   messages = messages.reverse()
@@ -283,17 +296,18 @@ export const markConversationRead = async (
   }
   await conversation.save()
 
-  const lastMessageSenderId = conversation.lastMessage?.senderId?.toString()
+  const lastMessage = conversation.lastMessage
+  const lastMessageId = lastMessage?._id?.toString()
+  const lastMessageSenderId =
+    lastMessage?.senderId != null ? String(lastMessage.senderId) : undefined
 
-  if (
-    conversation.lastMessage?._id &&
-    lastMessageSenderId !== userId.toString() &&
-    !alreadySeen
-  ) {
-    io.to(conversationId).emit('read-message', {
-      conversationId,
+  // Always notify sender when reader opens/reads after a message from someone else.
+  // (seenBy may still contain the user from an older message if reset was missed.)
+  if (lastMessageId && lastMessageSenderId && lastMessageSenderId !== userId.toString()) {
+    io.to(String(conversationId)).emit('read-message', {
+      conversationId: String(conversationId),
       userId: userId.toString(),
-      messageId: conversation.lastMessage._id
+      messageId: lastMessageId
     })
   }
 

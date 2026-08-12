@@ -17,9 +17,11 @@ function App() {
   }, [isDark, setTheme])
 
   useEffect(() => {
-    if (accessToken) {
-      connectSocket()
+    if (!accessToken) {
+      disconnectSocket()
+      return
     }
+    connectSocket()
     return () => disconnectSocket()
   }, [accessToken, connectSocket, disconnectSocket])
   return (

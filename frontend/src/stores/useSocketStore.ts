@@ -15,12 +15,20 @@ export const useSocketStore = create<SocketState>((set, get) => ({
   onlineUsers: [],
   connectSocket: () => {
     const accessToken = useAuthStore.getState().accessToken
+    if (!accessToken) return
+
     const existingSocket = get().socket
-    if (existingSocket) return
+    if (existingSocket) {
+      // Reconnect with fresh token if already connected under a stale auth
+      if (existingSocket.connected) return
+      existingSocket.disconnect()
+      set({ socket: null, onlineUsers: [] })
+    }
 
     const socket: Socket = io(baseUrl, {
       auth: { token: accessToken },
       transports: ['websocket'],
+      autoConnect: true,
     })
     set({ socket })
 
