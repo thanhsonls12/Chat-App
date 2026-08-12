@@ -79,7 +79,9 @@ export default function MessageItem({
                 ? 'bg-primary/20 text-primary'
                 : 'bg-muted text-muted-foreground'
             )}
-          ></Badge>
+          >
+            {lastMessageStatus === 'seen' ? 'Đã xem' : 'Đã gửi'}
+          </Badge>
         )}
       </div>
     </div>

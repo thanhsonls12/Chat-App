@@ -4,7 +4,10 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { useAuthStore } from './useAuthStore'
 
-const appendUniqueMessage = <T extends { _id: string }>(items: T[], message: T) =>
+const appendUniqueMessage = <T extends { _id: string }>(
+  items: T[],
+  message: T
+) =>
   items.some((item) => item._id === message._id) ? items : [...items, message]
 
 export const useChatStore = create<ChatState>()(
@@ -117,8 +120,56 @@ export const useChatStore = create<ChatState>()(
           void get().fetchConversations()
         }
       },
+      markConversationSeen: (conversationId, userId, messageId) => {
+        set((state) => ({
+          conversations: state.conversations.map((conversation) => {
+            if (
+              conversation._id !== conversationId ||
+              conversation.lastMessage?._id !== messageId
+            ) {
+              return conversation
+            }
+            const alreadySeen = conversation.seenBy.some(
+              (seenUser) => seenUser._id === userId
+            )
+            if (alreadySeen) {
+              return conversation
+            }
+            const participant = conversation.participants.find(
+              (item) => item._id === userId
+            )
+            if (!participant) {
+              return conversation
+            }
+            return {
+              ...conversation,
+              seenBy: [
+                ...conversation.seenBy,
+                {
+                  _id: participant._id,
+                  displayName: participant.displayName,
+                  avatarUrl: participant.avatarUrl,
+                },
+              ],
+              unreadCounts: {
+                ...conversation.unreadCounts,
+                [userId]: 0,
+              },
+            }
+          }),
+        }))
+      },
       sendDirectMessage: async (recipientId, content, imgUrl) => {
         const { activeConversationId } = get()
+        const user = useAuthStore.getState().user
+        if (!user) return
+
+        const seenUser = {
+          _id: user._id,
+          displayName: user.displayName,
+          avatarUrl: user.avatarUrl,
+        }
+
         const message = await chatService.sendDirectMessage(
           recipientId,
           content,
@@ -142,13 +193,13 @@ export const useChatStore = create<ChatState>()(
             c._id === message.conversationId
               ? {
                   ...c,
-                  seenBy: [useAuthStore.getState().user!],
+                  seenBy: [seenUser],
                   lastMessageAt: message.createdAt,
                   lastMessage: {
                     _id: message._id,
                     content: message.content ?? '',
                     createdAt: message.createdAt,
-                    sender: useAuthStore.getState().user!,
+                    sender: seenUser,
                   },
                 }
               : c
@@ -156,6 +207,15 @@ export const useChatStore = create<ChatState>()(
         }))
       },
       sendGroupMessage: async (conversationId, content, imgUrl) => {
+        const user = useAuthStore.getState().user
+        if (!user) return
+
+        const seenUser = {
+          _id: user._id,
+          displayName: user.displayName,
+          avatarUrl: user.avatarUrl,
+        }
+
         const message = await chatService.sendGroupMessage(
           conversationId,
           content,
@@ -178,13 +238,13 @@ export const useChatStore = create<ChatState>()(
             c._id === message.conversationId
               ? {
                   ...c,
-                  seenBy: [useAuthStore.getState().user!],
+                  seenBy: [seenUser],
                   lastMessageAt: message.createdAt,
                   lastMessage: {
                     _id: message._id,
                     content: message.content ?? '',
                     createdAt: message.createdAt,
-                    sender: useAuthStore.getState().user!,
+                    sender: seenUser,
                   },
                 }
               : c
@@ -208,7 +268,7 @@ export const useChatStore = create<ChatState>()(
                   { ...message, isOwn: message.senderId === user?._id },
                 ],
                 hasMore: current?.hasMore ?? true,
-                nextCursor: current?.nextCursor,
+                nextCursor: current?.nextCursor ?? null,
               },
             },
           }

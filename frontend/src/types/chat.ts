@@ -68,3 +68,9 @@ export interface NewMessageSocketPayload {
   }
   unreadCounts: Record<string, number>
 }
+
+export interface ReadMessageSocketPayload {
+  conversationId: string
+  userId: string
+  messageId: string
+}

@@ -16,6 +16,7 @@ export default function GroupChatCard({
     setActiveConversation,
     messages,
     fetchMessages,
+    markConversationRead,
   } = useChatStore()
 
   if (!user) return null
@@ -24,8 +25,9 @@ export default function GroupChatCard({
   const handleSelectConversation = async (id: string) => {
     setActiveConversation(id)
     if (!messages[id] || messages[id].nextCursor === undefined) {
-      await fetchMessages()
+      await fetchMessages(id)
     }
+    await markConversationRead(id)
   }
   return (
     <ChatCard

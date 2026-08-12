@@ -29,4 +29,5 @@ conversationRouter.patch<GetMessagesParams>(
   getMessagesValidator,
   asyncHandler(markConversationRead)
 )
+
 export default conversationRouter

@@ -11,6 +11,7 @@ import User from '@/models/User.js'
 import { AppError } from '@/utils/AppError.js'
 import { Types } from 'mongoose'
 import type { EmptyRequest, TypedRequest, TypedResponse } from '@/types/api.types.js'
+import { io } from '../socket/index.js'
 import type {
   CreateConversationBody,
   GetMessagesParams,
@@ -24,6 +25,17 @@ type PopulatedParticipant = {
     avatarUrl?: string
   }
   joined?: Date
+}
+
+type PopulatedLastMessage = {
+  _id?: string
+  content?: string | null
+  createdAt?: Date | null
+  senderId?: {
+    _id: Types.ObjectId
+    displayName?: string
+    avatarUrl?: string
+  } | null
 }
 
 export const createConversation = async (
@@ -149,6 +161,7 @@ export const getConversation = async (req: EmptyRequest, res: TypedResponse) => 
     }))
 
     const otherParticipant = participants.find((p) => p._id.toString() !== userId.toString())
+    const lastMessage = conversation.lastMessage as unknown as PopulatedLastMessage | null
 
     return {
       ...conversation,
@@ -156,7 +169,20 @@ export const getConversation = async (req: EmptyRequest, res: TypedResponse) => 
         conversation.type === 'direct' ? otherParticipant?.displayName : conversation.group?.name,
       avatarUrl: conversation.type === 'direct' ? otherParticipant?.avatarUrl : null,
       unreadCounts: conversation.unreadCounts || {},
-      participants
+      participants,
+      lastMessage:
+        lastMessage?._id && lastMessage.senderId
+          ? {
+              _id: lastMessage._id,
+              content: lastMessage.content ?? '',
+              createdAt: lastMessage.createdAt,
+              sender: {
+                _id: lastMessage.senderId._id,
+                displayName: lastMessage.senderId.displayName ?? '',
+                avatarUrl: lastMessage.senderId.avatarUrl
+              }
+            }
+          : null
     }
   })
 
@@ -221,14 +247,6 @@ export const getMessages = async (
 
   messages = messages.reverse()
 
-  conversation.unreadCounts.set(userId.toString(), 0)
-
-  if (!conversation.seenBy.some((id) => id.toString() === userId.toString())) {
-    conversation.seenBy.push(userId)
-  }
-
-  await conversation.save()
-
   return res.status(HTTP_STATUS.OK).json({ messages, nextCursor })
 }
 
@@ -256,11 +274,28 @@ export const markConversationRead = async (
     throw new AppError(CONVERSATION_MESSAGES.NOT_CONVERSATION_MEMBER, HTTP_STATUS.FORBIDDEN)
   }
 
+  const alreadySeen = conversation.seenBy.some((id) => id.toString() === userId.toString())
+
   conversation.unreadCounts.set(userId.toString(), 0)
-  if (!conversation.seenBy.some((id) => id.toString() === userId.toString())) {
+
+  if (!alreadySeen) {
     conversation.seenBy.push(userId)
   }
   await conversation.save()
+
+  const lastMessageSenderId = conversation.lastMessage?.senderId?.toString()
+
+  if (
+    conversation.lastMessage?._id &&
+    lastMessageSenderId !== userId.toString() &&
+    !alreadySeen
+  ) {
+    io.to(conversationId).emit('read-message', {
+      conversationId,
+      userId: userId.toString(),
+      messageId: conversation.lastMessage._id
+    })
+  }
 
   return res.status(HTTP_STATUS.NO_CONTENT).send()
 }

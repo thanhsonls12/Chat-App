@@ -3,7 +3,10 @@ import { io, type Socket } from 'socket.io-client'
 import { useAuthStore } from './useAuthStore'
 import type { SocketState } from '@/types/store'
 import { useChatStore } from './useChatStore'
-import type { NewMessageSocketPayload } from '@/types/chat'
+import type {
+  NewMessageSocketPayload,
+  ReadMessageSocketPayload,
+} from '@/types/chat'
 
 const baseUrl = import.meta.env.VITE_SOCKET_URL
 
@@ -64,12 +67,30 @@ export const useSocketStore = create<SocketState>((set, get) => ({
           },
         },
         unreadCounts,
+        seenBy: sender
+          ? [
+              {
+                _id: sender._id,
+                displayName: sender.displayName,
+                avatarUrl: sender.avatarUrl,
+              },
+            ]
+          : [],
       })
 
       if (chatStore.activeConversationId === conversation._id) {
         void useChatStore.getState().markConversationRead(conversation._id)
       }
     })
+
+    socket.on(
+      'read-message',
+      ({ conversationId, userId, messageId }: ReadMessageSocketPayload) => {
+        useChatStore
+          .getState()
+          .markConversationSeen(conversationId, userId, messageId)
+      }
+    )
 
     socket.on('connect_error', (error) => {
       console.error('socket connection failed', error.message)

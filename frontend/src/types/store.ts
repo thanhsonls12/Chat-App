@@ -51,6 +51,11 @@ export interface ChatState {
   fetchConversations: () => Promise<void>
   fetchMessages: (conversationId?: string) => Promise<void>
   markConversationRead: (conversationId: string) => Promise<void>
+  markConversationSeen: (
+    conversationId: string,
+    userId: string,
+    messageId: string
+  ) => void
   messageLoading: boolean
   sendDirectMessage: (
     recipientId: string,

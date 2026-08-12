@@ -19,6 +19,7 @@ export default function DirectMessageCard({
     setActiveConversation,
     messages,
     fetchMessages,
+    markConversationRead,
   } = useChatStore()
   const { onlineUsers } = useSocketStore()
   if (!user) return null
@@ -30,8 +31,9 @@ export default function DirectMessageCard({
   const handleSelectConversation = async (id: string) => {
     setActiveConversation(id)
     if (!messages[id] || messages[id].nextCursor === undefined) {
-      await fetchMessages()
+      await fetchMessages(id)
     }
+    await markConversationRead(id)
   }
   return (
     <ChatCard

@@ -28,8 +28,15 @@ export interface NewMessagePayload {
   unreadCounts: Record<string, number>
 }
 
+export interface ReadMessagePayload {
+  conversationId: string
+  userId: string
+  messageId: string
+}
+
 export interface ServerToClientEvents {
   'new-message': (payload: NewMessagePayload) => void
+  'read-message': (payload: ReadMessagePayload) => void
   onlineUsers: (userIds: string[]) => void
 }
 
