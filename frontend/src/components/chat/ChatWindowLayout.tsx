@@ -7,24 +7,26 @@ import ChatWindowBody from './ChatWindowBody'
 import MessageInput from './MessageInput'
 
 export default function ChatWindowLayout() {
-  const {
-    activeConversationId,
-    conversations,
-    messageLoading: loading,
-  } = useChatStore()
+  const { activeConversationId, conversations, messages, messageLoading } =
+    useChatStore()
   const selectedConvo = conversations.find(
     (c) => c._id === activeConversationId
   )
   if (!selectedConvo) {
     return <ChatWelcomeScreen />
   }
-  if (loading) {
+  const currentMessages = activeConversationId
+    ? messages[activeConversationId]?.items
+    : undefined
+
+  const isInitialLoading = messageLoading && currentMessages === undefined
+  if (isInitialLoading) {
     return <ChatWindowSkeleton />
   }
   return (
     <SidebarInset className="flex flex-col h-full flex-1 overflow-hidden rounded-sm shadow-sm">
       <ChatWindowHeader chat={selectedConvo} />
-      <div className="flex-1 overflow-y-auto bg-primary-foreground">
+      <div className="flex-1 min-h-0 overflow-hidden bg-primary-foreground">
         <ChatWindowBody />
       </div>
       <MessageInput selectedConvo={selectedConvo} />
