@@ -35,6 +35,7 @@ export interface ReadMessagePayload {
 }
 
 export interface ServerToClientEvents {
+  'new-group': (conversation: unknown) => void
   'new-message': (payload: NewMessagePayload) => void
   'read-message': (payload: ReadMessagePayload) => void
   onlineUsers: (userIds: string[]) => void

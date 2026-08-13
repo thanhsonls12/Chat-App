@@ -35,6 +35,7 @@ export interface ThemeState {
 }
 
 export interface ChatState {
+  loading: boolean
   conversations: Conversation[]
   messages: Record<
     string,

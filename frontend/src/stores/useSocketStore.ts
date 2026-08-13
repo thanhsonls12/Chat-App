@@ -4,6 +4,7 @@ import { useAuthStore } from './useAuthStore'
 import type { SocketState } from '@/types/store'
 import { useChatStore } from './useChatStore'
 import type {
+  Conversation,
   NewMessageSocketPayload,
   ReadMessageSocketPayload,
 } from '@/types/chat'
@@ -102,6 +103,11 @@ export const useSocketStore = create<SocketState>((set, get) => ({
 
     socket.on('connect_error', (error) => {
       console.error('socket connection failed', error.message)
+    })
+
+    socket.on('new-group', (conversation: Conversation) => {
+      useChatStore.getState().addConvo(conversation)
+      socket.emit('join-conversation', conversation._id)
     })
   },
   disconnectSocket: () => {

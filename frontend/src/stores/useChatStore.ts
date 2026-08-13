@@ -14,6 +14,7 @@ const appendUniqueMessage = <T extends { _id: string }>(
 export const useChatStore = create<ChatState>()(
   persist(
     (set, get) => ({
+      loading: false,
       conversations: [],
       messages: {},
       activeConversationId: null,
@@ -25,6 +26,7 @@ export const useChatStore = create<ChatState>()(
           conversations: [],
           messages: {},
           activeConversationId: null,
+          loading: false,
           convoLoading: false,
           messageLoading: false,
         })
@@ -314,6 +316,7 @@ export const useChatStore = create<ChatState>()(
       },
       createConversation: async (type, name, memberIds) => {
         try {
+          set({ loading: true })
           const conversation = await chatService.createConversation(
             type,
             name,
@@ -326,6 +329,9 @@ export const useChatStore = create<ChatState>()(
             .socket?.emit('join-conversation', conversation._id)
         } catch (error) {
           console.error(error)
+          throw error
+        } finally {
+          set({ loading: false })
         }
       },
     }),

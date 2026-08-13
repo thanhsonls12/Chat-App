@@ -134,6 +134,15 @@ export const createConversation = async (
 
   const formatted = { ...conversation.toObject(), participants }
 
+  if (type === 'group') {
+    const invitedMemberIds = [...new Set(memberIds.map(String))].filter(
+      (memberId) => memberId !== userId.toString()
+    )
+    invitedMemberIds.forEach((memberId) => {
+      io.to(`user:${memberId}`).emit('new-group', formatted)
+    })
+  }
+
   return res.status(HTTP_STATUS.CREATED).json({
     message: CONVERSATION_MESSAGES.CONVERSATION_CREATED,
     conversation: formatted
