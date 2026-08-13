@@ -1,5 +1,5 @@
 import { HTTP_STATUS } from '@/constants/httpStatus.js'
-import { COMMON_MESSAGES } from '@/constants/messages.js'
+import { COMMON_MESSAGES, FRIEND_MESSAGES } from '@/constants/messages.js'
 import { AppError, EntityError } from '@/utils/AppError.js'
 import { Request, Response, NextFunction } from 'express'
 import mongoose from 'mongoose'
@@ -33,7 +33,19 @@ export const errorMiddleware = (
   }
 
   if (isDuplicateKeyError(error)) {
-    const field = Object.keys(error.keyPattern ?? {})[0] ?? 'field'
+    const fields = Object.keys(error.keyPattern ?? {})
+    const isFriendRequest = fields.includes('from') && fields.includes('to')
+    const isFriendship = fields.includes('userA') && fields.includes('userB')
+
+    if (isFriendRequest || isFriendship) {
+      return res.status(HTTP_STATUS.CONFLICT).json({
+        message: isFriendRequest
+          ? FRIEND_MESSAGES.FRIEND_REQUEST_SENT_ALREADY
+          : FRIEND_MESSAGES.ALREADY_FRIENDS
+      })
+    }
+
+    const field = fields[0] ?? 'field'
     return res.status(HTTP_STATUS.CONFLICT).json({
       message: `${field} already exists`
     })

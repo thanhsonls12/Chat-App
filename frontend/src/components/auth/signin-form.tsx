@@ -59,9 +59,7 @@ export default function SigninForm({
                   </Label>
                   <Input type="text" id="username" {...register('username')} />
                   {errors.username && (
-                    <p className="text-destructive text-sm">
-                      {errors.username.message}
-                    </p>
+                    <p className="error-message">{errors.username.message}</p>
                   )}
                 </div>
               </div>
@@ -76,9 +74,7 @@ export default function SigninForm({
                     {...register('password')}
                   />
                   {errors.password && (
-                    <p className="text-destructive text-sm">
-                      {errors.password.message}
-                    </p>
+                    <p className="error-message">{errors.password.message}</p>
                   )}
                 </div>
               </div>

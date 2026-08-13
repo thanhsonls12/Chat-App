@@ -40,11 +40,11 @@ export const sendFriendRequest = async (
     })
   ])
   if (alreadyFriends) {
-    throw new AppError(FRIEND_MESSAGES.ALREADY_FRIENDS, HTTP_STATUS.BAD_REQUEST)
+    throw new AppError(FRIEND_MESSAGES.ALREADY_FRIENDS, HTTP_STATUS.CONFLICT)
   }
 
   if (existingRequest) {
-    throw new AppError(FRIEND_MESSAGES.FRIEND_REQUEST_SENT_ALREADY, HTTP_STATUS.BAD_REQUEST)
+    throw new AppError(FRIEND_MESSAGES.FRIEND_REQUEST_SENT_ALREADY, HTTP_STATUS.CONFLICT)
   }
 
   const request = await FriendRequest.create({

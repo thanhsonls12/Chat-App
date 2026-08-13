@@ -94,7 +94,23 @@ export const getMessagesValidator = validate(
     cursor: {
       in: ['query'],
       optional: true,
-      isISO8601: {
+      custom: {
+        options: (value) => {
+          if (typeof value !== 'string') return false
+
+          const separatorIndex = value.lastIndexOf('_')
+          const cursorDate =
+            separatorIndex === -1 ? value : value.slice(0, separatorIndex)
+          const cursorId =
+            separatorIndex === -1 ? undefined : value.slice(separatorIndex + 1)
+
+          const isValidDate =
+            cursorDate.length > 0 && !Number.isNaN(Date.parse(cursorDate))
+          const isValidId =
+            cursorId === undefined || /^[a-fA-F0-9]{24}$/.test(cursorId)
+
+          return isValidDate && isValidId
+        },
         errorMessage: CONVERSATION_MESSAGES.MESSAGE_CURSOR_MUST_BE_DATE
       }
     }

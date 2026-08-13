@@ -9,6 +9,8 @@ const LOAD_MORE_THRESHOLD = 80
 
 const NEAR_BOTTOM_THRESHOLD = 120
 
+const EMPTY_MESSAGES: never[] = []
+
 export default function ChatWindowBody() {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const initializedConversationRef = useRef<string | null>(null)
@@ -32,7 +34,7 @@ export default function ChatWindowBody() {
     ? allMessages[activeConversationId]
     : undefined
 
-  const messages = currentMessageState?.items ?? []
+  const messages = currentMessageState?.items ?? EMPTY_MESSAGES
 
   const hasMore = currentMessageState?.hasMore ?? false
 
@@ -137,7 +139,8 @@ export default function ChatWindowBody() {
       onScroll={handleScroll}
       className="h-full overflow-y-auto overflow-x-hidden beautiful-scrollbar bg-primary-foreground"
     >
-      <div className="flex min-h-full flex-col justify-end gap-1 p-4">
+      <div className="flex min-h-full flex-col gap-1 p-4">
+        <div aria-hidden className="mt-auto" />
         {messageLoading && hasMore && (
           <div className="flex justify-center py-2">
             <LoaderCircle

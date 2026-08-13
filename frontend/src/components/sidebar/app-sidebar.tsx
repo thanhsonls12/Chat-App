@@ -84,9 +84,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarGroup>
           <SidebarGroupLabel className="uppercase">Bạn Bè</SidebarGroupLabel>
 
-          <SidebarGroupAction title="Kết Bạn" className="cursor-pointer">
-            <AddFriendModal />
-          </SidebarGroupAction>
+          <AddFriendModal />
 
           <SidebarGroupContent>
             <DirectMessageList />

@@ -28,7 +28,10 @@ export const AUTH_MESSAGES = {
 } as const
 
 export const USER_MESSAGES = {
-  USER_NOT_FOUND: 'User not found'
+  USER_NOT_FOUND: 'User not found',
+  USERNAME_QUERY_REQUIRED: 'Username query is required',
+  USERNAME_QUERY_MUST_BE_STRING: 'Username query must be a string',
+  USERNAME_QUERY_LENGTH: 'Username query must be between 3 and 50 characters'
 } as const
 
 export const FRIEND_MESSAGES = {
