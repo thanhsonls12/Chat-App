@@ -45,6 +45,19 @@ io.on('connection', async (socket) => {
 
   io.emit('onlineUsers', Array.from(onlineUsers.keys()))
 
+  socket.on('join-conversation', async (conversationId) => {
+    if (typeof conversationId !== 'string') return
+
+    try {
+      const conversationIds = await getUserConversationsForSocketIO(userId)
+      if (conversationIds.includes(conversationId)) {
+        await socket.join(conversationId)
+      }
+    } catch (error) {
+      console.error('Unable to join newly created conversation room', error)
+    }
+  })
+
   socket.on('disconnect', () => {
     const remainingSockets = onlineUsers.get(userId)
     remainingSockets?.delete(socket.id)

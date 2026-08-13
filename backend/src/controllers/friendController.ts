@@ -79,14 +79,18 @@ export const acceptFriendRequest = async (
     throw new AppError(FRIEND_MESSAGES.FORBIDDEN_ACCEPT_FRIEND_REQUEST, HTTP_STATUS.FORBIDDEN)
   }
 
-  await Friend.create({
-    userA: request.from,
-    userB: request.to
-  })
+  let userA = request.from
+  let userB = request.to
+  if (userA.toString() > userB.toString()) {
+    ;[userA, userB] = [userB, userA]
+  }
+
+  // Upsert makes repeated/concurrent accept requests idempotent.
+  await Friend.updateOne({ userA, userB }, { $setOnInsert: { userA, userB } }, { upsert: true })
 
   await FriendRequest.findByIdAndDelete(requestId)
 
-  const from = await User.findById(request.from).select('_id displayName avatarUrl').lean()
+  const from = await User.findById(request.from).select('_id username displayName avatarUrl').lean()
 
   return res.status(HTTP_STATUS.OK).json({
     message: FRIEND_MESSAGES.FRIEND_REQUEST_ACCEPTED,
@@ -131,8 +135,8 @@ export const getAllFriends = async (req: EmptyRequest, res: TypedResponse) => {
   const friendships = await Friend.find({
     $or: [{ userA: userId }, { userB: userId }]
   })
-    .populate('userA', '_id displayName avatarUrl')
-    .populate('userB', '_id displayName avatarUrl')
+    .populate('userA', '_id displayName avatarUrl username')
+    .populate('userB', '_id displayName avatarUrl username')
     .lean()
 
   if (friendships.length === 0) {

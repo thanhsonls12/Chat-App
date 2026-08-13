@@ -3,6 +3,7 @@ import type { ChatState } from '@/types/store'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { useAuthStore } from './useAuthStore'
+import { useSocketStore } from './useSocketStore'
 
 const appendUniqueMessage = <T extends { _id: string }>(
   items: T[],
@@ -297,6 +298,35 @@ export const useChatStore = create<ChatState>()(
                 new Date(a.lastMessageAt ?? 0).getTime()
             ),
         }))
+      },
+      addConvo: (convo) => {
+        set((state) => {
+          const exists = state.conversations.some(
+            (c) => c._id.toString() === convo._id.toString()
+          )
+          return {
+            conversations: exists
+              ? state.conversations
+              : [convo, ...state.conversations],
+            activeConversationId: convo._id,
+          }
+        })
+      },
+      createConversation: async (type, name, memberIds) => {
+        try {
+          const conversation = await chatService.createConversation(
+            type,
+            name,
+            memberIds
+          )
+          get().addConvo(conversation)
+
+          useSocketStore
+            .getState()
+            .socket?.emit('join-conversation', conversation._id)
+        } catch (error) {
+          console.error(error)
+        }
       },
     }),
     {

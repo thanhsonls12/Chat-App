@@ -12,15 +12,18 @@ interface ApiErrorResponse {
 const getErrorMessage = (error: unknown, fallback: string) => {
   if (!axios.isAxiosError<ApiErrorResponse>(error)) return fallback
 
-  const validationMessage = Object.values(error.response?.data?.errors ?? {}).find(
-    (item) => typeof item?.msg === 'string'
-  )?.msg
+  const validationMessage = Object.values(
+    error.response?.data?.errors ?? {}
+  ).find((item) => typeof item?.msg === 'string')?.msg
 
   return validationMessage ?? error.response?.data?.message ?? fallback
 }
 
 export const useFriendStore = create<FriendState>((set) => ({
+  friends: [],
   loading: false,
+  receivedList: [],
+  sentList: [],
   searchByUsername: async (username) => {
     try {
       set({ loading: true })
@@ -48,6 +51,74 @@ export const useFriendStore = create<FriendState>((set) => ({
       console.error(error)
       toast.error(getErrorMessage(error, 'Không thể gửi lời mời kết bạn'))
       throw error
+    } finally {
+      set({
+        loading: false,
+      })
+    }
+  },
+  getAllFriendRequests: async () => {
+    try {
+      set({ loading: true })
+      const { received, sent } = await friendService.getAllFriendRequests()
+      set({
+        receivedList: received,
+        sentList: sent,
+      })
+    } catch (error) {
+      console.error(error)
+      toast.error(
+        getErrorMessage(error, 'Không thể tải danh sách lời mời kết bạn')
+      )
+      throw error
+    } finally {
+      set({
+        loading: false,
+      })
+    }
+  },
+  acceptRequest: async (requestId) => {
+    try {
+      set({ loading: true })
+      await friendService.acceptRequest(requestId)
+      set((state) => ({
+        receivedList: state.receivedList.filter((r) => r._id !== requestId),
+      }))
+    } catch (error) {
+      console.error(error)
+      toast.error(getErrorMessage(error, 'Không thể chấp nhận lời mời kết bạn'))
+      throw error
+    } finally {
+      set({
+        loading: false,
+      })
+    }
+  },
+  declineRequest: async (requestId) => {
+    try {
+      set({ loading: true })
+      await friendService.declineRequest(requestId)
+      set((state) => ({
+        receivedList: state.receivedList.filter((r) => r._id !== requestId),
+      }))
+    } catch (error) {
+      console.error(error)
+      toast.error(getErrorMessage(error, 'Không thể từ chối lời mời kết bạn'))
+      throw error
+    } finally {
+      set({
+        loading: false,
+      })
+    }
+  },
+  getFriends: async () => {
+    try {
+      set({ loading: true })
+      const friends = await friendService.getFriendList()
+      set({ friends: friends })
+    } catch (error) {
+      console.error(error)
+      set({ friends: [] })
     } finally {
       set({
         loading: false,

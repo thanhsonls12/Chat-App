@@ -40,8 +40,9 @@ export interface ServerToClientEvents {
   onlineUsers: (userIds: string[]) => void
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface ClientToServerEvents {}
+export interface ClientToServerEvents {
+  'join-conversation': (conversationId: string) => void
+}
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface InterServerEvents {}

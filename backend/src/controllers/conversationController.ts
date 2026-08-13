@@ -125,9 +125,18 @@ export const createConversation = async (
     }
   ])
 
+  const participants = ((conversation.participants || []) as PopulatedParticipant[]).map((p) => ({
+    _id: p.userId._id,
+    displayName: p.userId.displayName,
+    avatarUrl: p.userId.avatarUrl,
+    joinedAt: p.joined
+  }))
+
+  const formatted = { ...conversation.toObject(), participants }
+
   return res.status(HTTP_STATUS.CREATED).json({
     message: CONVERSATION_MESSAGES.CONVERSATION_CREATED,
-    conversation
+    conversation: formatted
   })
 }
 
