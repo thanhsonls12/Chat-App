@@ -10,6 +10,17 @@ export interface User {
   updatedAt?: string
 }
 
+export interface UpdateProfileInput {
+  displayName: string
+  bio: string
+  phone: string
+}
+
+export interface ChangePasswordInput {
+  currentPassword: string
+  newPassword: string
+}
+
 export interface Friend {
   _id: string
   username: string

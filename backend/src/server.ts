@@ -12,7 +12,7 @@ import friendRouter from './routes/friendRoute.js'
 import messageRouter from './routes/messageRoute.js'
 import conversationRouter from './routes/conversationRoute.js'
 import { app, server } from './socket/index.js'
-
+import { v2 as cloudinary } from 'cloudinary'
 const PORT = envConfig.PORT ?? 5001
 
 //middlewares
@@ -24,6 +24,12 @@ app.use(
     credentials: true
   })
 )
+
+cloudinary.config({
+  cloud_name: envConfig.CLOUDINARY_CLOUD_NAME,
+  api_key: envConfig.CLOUDINARY_API_KEY,
+  api_secret: envConfig.CLOUDINARY_API_SECRET
+})
 //public routes
 app.use('/api/auth', authRouter)
 

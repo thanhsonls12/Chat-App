@@ -1,6 +1,12 @@
 import type { Socket } from 'socket.io-client'
 import type { Conversation, Message } from './chat'
-import type { Friend, FriendRequest, User } from './user'
+import type {
+  ChangePasswordInput,
+  Friend,
+  FriendRequest,
+  UpdateProfileInput,
+  User,
+} from './user'
 
 export interface AuthState {
   accessToken: string | null
@@ -26,6 +32,8 @@ export interface AuthState {
   refresh: () => Promise<void>
 
   setAccessToken: (accessToken: string) => void
+
+  setUser: (user: User) => void
 }
 
 export interface ThemeState {
@@ -96,4 +104,13 @@ export interface FriendState {
   acceptRequest: (requestId: string) => Promise<void>
   declineRequest: (requestId: string) => Promise<void>
   getFriends: () => Promise<void>
+}
+
+export interface UserState {
+  updatingProfile: boolean
+  uploadingAvatar: boolean
+  changingPassword: boolean
+  updateProfile: (input: UpdateProfileInput) => Promise<void>
+  changePassword: (input: ChangePasswordInput) => Promise<void>
+  updateAvatarUrl: (formData: FormData) => Promise<void>
 }

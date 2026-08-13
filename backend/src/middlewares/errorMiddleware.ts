@@ -3,6 +3,7 @@ import { COMMON_MESSAGES, FRIEND_MESSAGES } from '@/constants/messages.js'
 import { AppError, EntityError } from '@/utils/AppError.js'
 import { Request, Response, NextFunction } from 'express'
 import mongoose from 'mongoose'
+import multer from 'multer'
 
 interface MongoDuplicateKeyError extends Error {
   code: number
@@ -30,6 +31,16 @@ export const errorMiddleware = (
     return res.status(error.statusCode).json({
       message: error.message
     })
+  }
+
+  if (error instanceof multer.MulterError) {
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
+      message: error.code === 'LIMIT_FILE_SIZE' ? 'Avatar must be at most 5 MB' : error.message
+    })
+  }
+
+  if (error.message === 'Only image files are allowed') {
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: error.message })
   }
 
   if (isDuplicateKeyError(error)) {

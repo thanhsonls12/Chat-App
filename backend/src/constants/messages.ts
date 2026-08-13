@@ -29,6 +29,20 @@ export const AUTH_MESSAGES = {
 
 export const USER_MESSAGES = {
   USER_NOT_FOUND: 'User not found',
+  AVATAR_NOT_UPLOADED: 'Avatar file is required',
+  PROFILE_UPDATED: 'Profile updated successfully',
+  DISPLAY_NAME_MUST_BE_STRING: 'Display name must be a string',
+  DISPLAY_NAME_LENGTH: 'Display name must be between 1 and 100 characters',
+  BIO_MUST_BE_STRING: 'Bio must be a string',
+  BIO_LENGTH: 'Bio must be at most 500 characters',
+  PHONE_MUST_BE_STRING: 'Phone must be a string',
+  PHONE_MUST_BE_VALID: 'Phone number is invalid',
+  CURRENT_PASSWORD_REQUIRED: 'Current password is required',
+  CURRENT_PASSWORD_INCORRECT: 'Current password is incorrect',
+  NEW_PASSWORD_REQUIRED: 'New password is required',
+  NEW_PASSWORD_LENGTH: 'New password must be between 6 and 50 characters',
+  NEW_PASSWORD_MUST_BE_DIFFERENT: 'New password must be different from current password',
+  PASSWORD_UPDATED: 'Password updated successfully',
   USERNAME_QUERY_REQUIRED: 'Username query is required',
   USERNAME_QUERY_MUST_BE_STRING: 'Username query must be a string',
   USERNAME_QUERY_LENGTH: 'Username query must be between 3 and 50 characters'
