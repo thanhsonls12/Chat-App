@@ -50,6 +50,7 @@ export const sendFriendRequest = async (
   const request = await FriendRequest.create({
     from,
     to,
+    pair: [from.toString(), to.toString()].sort().join(':'),
     ...(message !== undefined ? { message } : {})
   })
 
@@ -85,7 +86,6 @@ export const acceptFriendRequest = async (
     ;[userA, userB] = [userB, userA]
   }
 
-  // Upsert makes repeated/concurrent accept requests idempotent.
   await Friend.updateOne({ userA, userB }, { $setOnInsert: { userA, userB } }, { upsert: true })
 
   await FriendRequest.findByIdAndDelete(requestId)

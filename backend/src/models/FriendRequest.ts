@@ -12,6 +12,10 @@ const friendRequestSchema = new mongoose.Schema(
       ref: 'User',
       required: true
     },
+    pair: {
+      type: String,
+      required: true
+    },
     message: {
       type: String,
       maxlength: 300
@@ -23,6 +27,7 @@ const friendRequestSchema = new mongoose.Schema(
 )
 
 friendRequestSchema.index({ from: 1, to: 1 }, { unique: true })
+friendRequestSchema.index({ pair: 1 }, { unique: true, sparse: true })
 
 export type IFriendRequest = mongoose.InferSchemaType<typeof friendRequestSchema>
 
