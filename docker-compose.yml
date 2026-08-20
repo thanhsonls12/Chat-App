@@ -1,0 +1,39 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: chatapp-backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      # Kept at development so refresh-token cookies (secure/sameSite=none in
+      # production) work over plain HTTP locally. Set to production only behind HTTPS.
+      NODE_ENV: development
+      PORT: 5001
+      # Must match the origin the browser loads the frontend from (see frontend port below)
+      CLIENT_URL: http://localhost:8080
+    expose:
+      - "5001"
+    networks:
+      - chatapp
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # Relative URLs — nginx proxies /api and /socket.io to the backend
+        VITE_API_URL: /api
+        VITE_SOCKET_URL: /
+    container_name: chatapp-frontend
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - chatapp
+
+networks:
+  chatapp:
+    driver: bridge
