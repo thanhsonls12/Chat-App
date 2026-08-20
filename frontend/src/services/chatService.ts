@@ -39,27 +39,38 @@ export const chatService = {
   async sendDirectMessage(
     recipientId: string,
     content: string = '',
-    imgUrl?: string,
+    image?: File,
     conversationId?: string
   ): Promise<Message> {
-    const res = await api.post<SendMessageResponse>('/messages/direct', {
-      recipientId,
-      content,
-      imgUrl,
-      conversationId,
-    })
+    const formData = new FormData()
+    formData.append('recipientId', recipientId)
+    formData.append('content', content)
+    if (conversationId) formData.append('conversationId', conversationId)
+    if (image) formData.append('image', image)
+    const res = await api.post<SendMessageResponse>('/messages/direct', formData)
     return res.data.data
   },
   async sendGroupMessage(
     conversationId: string,
     content: string = '',
-    imgUrl?: string
+    image?: File
   ): Promise<Message> {
-    const res = await api.post<SendMessageResponse>('/messages/group', {
-      conversationId,
+    const formData = new FormData()
+    formData.append('conversationId', conversationId)
+    formData.append('content', content)
+    if (image) formData.append('image', image)
+    const res = await api.post<SendMessageResponse>('/messages/group', formData)
+    return res.data.data
+  },
+
+  async editMessage(messageId: string, content: string): Promise<Message> {
+    const res = await api.patch<SendMessageResponse>(`/messages/${messageId}`, {
       content,
-      imgUrl,
     })
+    return res.data.data
+  },
+  async deleteMessage(messageId: string): Promise<Message> {
+    const res = await api.delete<SendMessageResponse>(`/messages/${messageId}`)
     return res.data.data
   },
 

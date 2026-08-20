@@ -1,5 +1,5 @@
 import type { Socket } from 'socket.io-client'
-import type { Conversation, Message } from './chat'
+import type { Conversation, Message, TypingUser } from './chat'
 import type {
   ChangePasswordInput,
   Friend,
@@ -69,14 +69,17 @@ export interface ChatState {
   sendDirectMessage: (
     recipientId: string,
     content: string,
-    imgUrl?: string
+    image?: File
   ) => Promise<void>
   sendGroupMessage: (
     conversationId: string,
     content: string,
-    imgUrl?: string
+    image?: File
   ) => Promise<void>
   addMessage: (message: Message) => void
+  applyMessageUpdate: (message: Message) => void
+  editMessage: (messageId: string, content: string) => Promise<void>
+  deleteMessage: (messageId: string) => Promise<void>
   updateConversation: (conversation: Conversation) => void
   addConvo: (convo: Conversation) => void
   createConversation: (
@@ -89,8 +92,10 @@ export interface ChatState {
 export interface SocketState {
   socket: Socket | null
   onlineUsers: string[]
+  typingUsers: Record<string, TypingUser[]>
   connectSocket: () => void
   disconnectSocket: () => void
+  emitTyping: (conversationId: string, isTyping: boolean) => void
 }
 
 export interface FriendState {

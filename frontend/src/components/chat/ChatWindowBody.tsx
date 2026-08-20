@@ -1,6 +1,7 @@
 import { useChatStore } from '@/stores/useChatStore'
 import ChatWelcomeScreen from './ChatWelcomeScreen'
 import MessageItem from './MessageItem'
+import TypingIndicator from './TypingIndicator'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useCallback, useLayoutEffect, useRef } from 'react'
 import { LoaderCircle } from 'lucide-react'
@@ -38,7 +39,6 @@ export default function ChatWindowBody() {
 
   const hasMore = currentMessageState?.hasMore ?? false
 
-  // Initial open + new messages at bottom (not when prepending older pages)
   useLayoutEffect(() => {
     if (!activeConversationId || messages.length === 0) return
     const container = scrollContainerRef.current
@@ -127,8 +127,9 @@ export default function ChatWindowBody() {
 
   if (!messages?.length) {
     return (
-      <div className="flex h-full items-center justify-center text-muted-foreground">
-        Chưa có tin nhắn nào trong cuộc trò chuyện này
+      <div className="flex h-full flex-col items-center justify-center gap-2 text-muted-foreground">
+        <p>Chưa có tin nhắn nào trong cuộc trò chuyện này</p>
+        <TypingIndicator conversation={selectedConvo} />
       </div>
     )
   }
@@ -166,6 +167,7 @@ export default function ChatWindowBody() {
             lastMessageStatus={lastMessageStatus}
           />
         ))}
+        <TypingIndicator conversation={selectedConvo} />
       </div>
     </div>
   )

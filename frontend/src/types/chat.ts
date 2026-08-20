@@ -19,7 +19,9 @@ export interface Group {
 export interface LastMessage {
   _id: string
   content: string
+  imgUrl?: string | null
   createdAt: string
+  deletedAt?: string | null
   sender: SeenUser
 }
 
@@ -31,7 +33,7 @@ export interface Conversation {
   lastMessageAt: string
   seenBy: SeenUser[]
   lastMessage: LastMessage | null
-  unreadCounts: Record<string, number> // key = userId, value = unread count
+  unreadCounts: Record<string, number>
   createdAt: string
   updatedAt: string
 }
@@ -47,8 +49,14 @@ export interface Message {
   content: string | null
   imgUrl?: string | null
   updatedAt?: string | null
+  editedAt?: string | null
+  deletedAt?: string | null
   createdAt: string
   isOwn?: boolean
+}
+
+export type MessageUpdatedSocketPayload = Omit<Message, 'content' | 'isOwn'> & {
+  content?: string | null
 }
 
 export interface NewMessageSocketPayload {
@@ -73,4 +81,14 @@ export interface ReadMessageSocketPayload {
   conversationId: string
   userId: string
   messageId: string
+}
+
+export interface TypingUser {
+  userId: string
+  displayName: string
+}
+
+export interface TypingSocketPayload extends TypingUser {
+  conversationId: string
+  isTyping: boolean
 }

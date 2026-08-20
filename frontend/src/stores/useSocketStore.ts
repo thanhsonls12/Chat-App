@@ -5,22 +5,28 @@ import type { SocketState } from '@/types/store'
 import { useChatStore } from './useChatStore'
 import type {
   Conversation,
+  MessageUpdatedSocketPayload,
   NewMessageSocketPayload,
   ReadMessageSocketPayload,
+  TypingSocketPayload,
 } from '@/types/chat'
 
 const baseUrl = import.meta.env.VITE_SOCKET_URL
 
+const TYPING_EXPIRY_MS = 5000
+
+const typingExpiryTimers = new Map<string, ReturnType<typeof setTimeout>>()
+
 export const useSocketStore = create<SocketState>((set, get) => ({
   socket: null,
   onlineUsers: [],
+  typingUsers: {},
   connectSocket: () => {
     const accessToken = useAuthStore.getState().accessToken
     if (!accessToken) return
 
     const existingSocket = get().socket
     if (existingSocket) {
-      // Reconnect with fresh token if already connected under a stale auth
       if (existingSocket.connected) return
       existingSocket.disconnect()
       set({ socket: null, onlineUsers: [] })
@@ -68,6 +74,7 @@ export const useSocketStore = create<SocketState>((set, get) => ({
         lastMessage: {
           _id: conversation.lastMessage._id,
           content: conversation.lastMessage.content ?? '',
+          imgUrl: conversation.lastMessage.imgUrl ?? null,
           createdAt: conversation.lastMessage.createdAt,
           sender: {
             _id: message.senderId,
@@ -101,6 +108,50 @@ export const useSocketStore = create<SocketState>((set, get) => ({
       }
     )
 
+    socket.on('message-updated', (payload: MessageUpdatedSocketPayload) => {
+      useChatStore.getState().applyMessageUpdate({
+        ...payload,
+        content: payload.content ?? null,
+      })
+    })
+
+    socket.on(
+      'user-typing',
+      ({ conversationId, userId, displayName, isTyping }: TypingSocketPayload) => {
+        const timerKey = `${conversationId}:${userId}`
+        const existingTimer = typingExpiryTimers.get(timerKey)
+        if (existingTimer) clearTimeout(existingTimer)
+
+        const removeTyping = () => {
+          typingExpiryTimers.delete(timerKey)
+          set((state) => {
+            const current = state.typingUsers[conversationId] ?? []
+            const next = current.filter((u) => u.userId !== userId)
+            return {
+              typingUsers: { ...state.typingUsers, [conversationId]: next },
+            }
+          })
+        }
+
+        if (!isTyping) {
+          removeTyping()
+          return
+        }
+
+        set((state) => {
+          const current = state.typingUsers[conversationId] ?? []
+          if (current.some((u) => u.userId === userId)) return state
+          return {
+            typingUsers: {
+              ...state.typingUsers,
+              [conversationId]: [...current, { userId, displayName }],
+            },
+          }
+        })
+        typingExpiryTimers.set(timerKey, setTimeout(removeTyping, TYPING_EXPIRY_MS))
+      }
+    )
+
     socket.on('connect_error', (error) => {
       console.error('socket connection failed', error.message)
     })
@@ -114,7 +165,12 @@ export const useSocketStore = create<SocketState>((set, get) => ({
     const socket = get().socket
     if (socket) {
       socket.disconnect()
-      set({ socket: null, onlineUsers: [] })
+      typingExpiryTimers.forEach((timer) => clearTimeout(timer))
+      typingExpiryTimers.clear()
+      set({ socket: null, onlineUsers: [], typingUsers: {} })
     }
+  },
+  emitTyping: (conversationId, isTyping) => {
+    get().socket?.emit(isTyping ? 'typing' : 'stop-typing', conversationId)
   },
 }))

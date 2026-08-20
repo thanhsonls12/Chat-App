@@ -162,7 +162,7 @@ export const useChatStore = create<ChatState>()(
           }),
         }))
       },
-      sendDirectMessage: async (recipientId, content, imgUrl) => {
+      sendDirectMessage: async (recipientId, content, image) => {
         const { activeConversationId, conversations } = get()
         const user = useAuthStore.getState().user
         if (!user) return
@@ -176,7 +176,7 @@ export const useChatStore = create<ChatState>()(
         const message = await chatService.sendDirectMessage(
           recipientId,
           content,
-          imgUrl,
+          image,
           activeConversationId ?? undefined
         )
 
@@ -206,6 +206,7 @@ export const useChatStore = create<ChatState>()(
                   lastMessage: {
                     _id: message._id,
                     content: message.content ?? '',
+                    imgUrl: message.imgUrl ?? null,
                     createdAt: message.createdAt,
                     sender: seenUser,
                   },
@@ -220,7 +221,7 @@ export const useChatStore = create<ChatState>()(
           set({ activeConversationId: message.conversationId })
         }
       },
-      sendGroupMessage: async (conversationId, content, imgUrl) => {
+      sendGroupMessage: async (conversationId, content, image) => {
         const user = useAuthStore.getState().user
         if (!user) return
 
@@ -233,7 +234,7 @@ export const useChatStore = create<ChatState>()(
         const message = await chatService.sendGroupMessage(
           conversationId,
           content,
-          imgUrl
+          image
         )
         set((state) => ({
           messages: {
@@ -257,6 +258,7 @@ export const useChatStore = create<ChatState>()(
                   lastMessage: {
                     _id: message._id,
                     content: message.content ?? '',
+                    imgUrl: message.imgUrl ?? null,
                     createdAt: message.createdAt,
                     sender: seenUser,
                   },
@@ -287,6 +289,54 @@ export const useChatStore = create<ChatState>()(
             },
           }
         })
+      },
+      applyMessageUpdate: (message) => {
+        const { user } = useAuthStore.getState()
+        const convoId = message.conversationId
+        set((state) => {
+          const current = state.messages[convoId]
+          return {
+            messages: current
+              ? {
+                  ...state.messages,
+                  [convoId]: {
+                    ...current,
+                    items: current.items.map((item) =>
+                      item._id === message._id
+                        ? {
+                            ...item,
+                            ...message,
+                            isOwn: message.senderId === user?._id,
+                          }
+                        : item
+                    ),
+                  },
+                }
+              : state.messages,
+            conversations: state.conversations.map((conversation) =>
+              conversation._id === convoId &&
+              conversation.lastMessage?._id === message._id
+                ? {
+                    ...conversation,
+                    lastMessage: {
+                      ...conversation.lastMessage,
+                      content: message.content ?? '',
+                      imgUrl: message.imgUrl ?? null,
+                      deletedAt: message.deletedAt ?? null,
+                    },
+                  }
+                : conversation
+            ),
+          }
+        })
+      },
+      editMessage: async (messageId, content) => {
+        const updated = await chatService.editMessage(messageId, content)
+        get().applyMessageUpdate(updated)
+      },
+      deleteMessage: async (messageId) => {
+        const updated = await chatService.deleteMessage(messageId)
+        get().applyMessageUpdate(updated)
       },
       updateConversation: (conversation) => {
         set((state) => ({
