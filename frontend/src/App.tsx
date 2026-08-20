@@ -29,12 +29,10 @@ function App() {
       <Toaster richColors />
       <BrowserRouter>
         <Routes>
-          {/* Pulic Routes */}
+          <Route path="/signin" element={<SignInPage />} />
 
           <Route path="/signin" element={<SignInPage />} />
           <Route path="/signup" element={<SignUpPage />} />
-
-          {/* Protected Routes */}
 
           <Route element={<ProtectedRoute />}>
             <Route path="/" element={<ChatAppPage />} />

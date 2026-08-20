@@ -58,14 +58,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
 
       <SidebarContent className="beautiful-scrollbar">
-        {/* New Chat */}
         <SidebarGroup>
           <SidebarGroupContent>
             <CreateNewChat />
           </SidebarGroupContent>
         </SidebarGroup>
-
-        {/* Group Chat */}
 
         <SidebarGroup>
           <SidebarGroupLabel className="uppercase">Nhóm Chat</SidebarGroupLabel>
@@ -78,8 +75,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <GroupChatList />
           </SidebarGroupContent>
         </SidebarGroup>
-
-        {/* Direct Chat */}
 
         <SidebarGroup>
           <SidebarGroupLabel className="uppercase">Bạn Bè</SidebarGroupLabel>
