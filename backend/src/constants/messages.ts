@@ -1,7 +1,8 @@
 export const COMMON_MESSAGES = {
   INTERNAL_SERVER_ERROR: 'Internal server error',
   UNAUTHORIZED: 'Unauthorized',
-  FORBIDDEN: 'Forbidden'
+  FORBIDDEN: 'Forbidden',
+  TOO_MANY_REQUESTS: 'Too many requests, please try again later'
 } as const
 
 export const AUTH_MESSAGES = {
@@ -52,7 +53,6 @@ export const FRIEND_MESSAGES = {
   CANNOT_SEND_FRIEND_REQUEST: 'You cannot send a friend request to yourself',
   FRIEND_REQUEST_SENT: 'Friend request sent successfully',
   FRIEND_REQUEST_ACCEPTED: 'Friend request accepted successfully',
-  FRIEND_REQUEST_DECLINED: 'Friend request declined successfully',
   ALREADY_FRIENDS: 'You are already friends with this user',
   FRIEND_REQUEST_SENT_ALREADY: 'You have already sent a friend request to this user',
   RECEIVER_ID_REQUIRED: 'Receiver id is required',
@@ -73,8 +73,16 @@ export const MESSAGE_MESSAGES = {
   CONTENT_REQUIRED: 'Message content or image is required',
   CONTENT_MUST_BE_STRING: 'Message content must be a string',
   CONTENT_LENGTH: 'Message content must be at most 2000 characters',
-  IMAGE_URL_MUST_BE_STRING: 'Image URL must be a string',
-  MESSAGE_SENT: 'Message sent successfully'
+  IMAGE_MUST_BE_AT_MOST_5MB: 'Image must be at most 5 MB',
+  MESSAGE_SENT: 'Message sent successfully',
+  MESSAGE_ID_MUST_BE_MONGO_ID: 'Message id must be a valid Mongo id',
+  MESSAGE_NOT_FOUND: 'Message not found',
+  MESSAGE_ALREADY_DELETED: 'Message has already been deleted',
+  FORBIDDEN_EDIT_MESSAGE: 'You are not allowed to edit this message',
+  FORBIDDEN_DELETE_MESSAGE: 'You are not allowed to delete this message',
+  CANNOT_EDIT_IMAGE_ONLY_MESSAGE: 'Only text messages can be edited',
+  MESSAGE_UPDATED: 'Message updated successfully',
+  MESSAGE_DELETED: 'Message deleted successfully'
 } as const
 
 export const CONVERSATION_MESSAGES = {

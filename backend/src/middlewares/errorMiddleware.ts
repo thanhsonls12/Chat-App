@@ -1,5 +1,5 @@
 import { HTTP_STATUS } from '@/constants/httpStatus.js'
-import { COMMON_MESSAGES, FRIEND_MESSAGES } from '@/constants/messages.js'
+import { COMMON_MESSAGES, FRIEND_MESSAGES, MESSAGE_MESSAGES } from '@/constants/messages.js'
 import { AppError, EntityError } from '@/utils/AppError.js'
 import { Request, Response, NextFunction } from 'express'
 import mongoose from 'mongoose'
@@ -35,7 +35,10 @@ export const errorMiddleware = (
 
   if (error instanceof multer.MulterError) {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({
-      message: error.code === 'LIMIT_FILE_SIZE' ? 'Avatar must be at most 5 MB' : error.message
+      message:
+        error.code === 'LIMIT_FILE_SIZE'
+          ? MESSAGE_MESSAGES.IMAGE_MUST_BE_AT_MOST_5MB
+          : error.message
     })
   }
 
@@ -45,7 +48,8 @@ export const errorMiddleware = (
 
   if (isDuplicateKeyError(error)) {
     const fields = Object.keys(error.keyPattern ?? {})
-    const isFriendRequest = fields.includes('from') && fields.includes('to')
+    const isFriendRequest =
+      (fields.includes('from') && fields.includes('to')) || fields.includes('pair')
     const isFriendship = fields.includes('userA') && fields.includes('userB')
 
     if (isFriendRequest || isFriendship) {

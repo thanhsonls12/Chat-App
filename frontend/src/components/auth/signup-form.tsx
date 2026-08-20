@@ -44,7 +44,6 @@ export function SignupForm({
         <CardContent className="grid p-0 md:grid-cols-2">
           <form className="p-5 md:p-6" onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-col gap-4">
-              {/* Logo */}
               <div className="flex flex-col items-center gap-2 text-center">
                 <a href="/" className="mx-auto block w-fit text-center">
                   <img src="/logo.svg" alt="Logo" className="h-12 w-auto" />
@@ -54,7 +53,6 @@ export function SignupForm({
                   Chào mừng bạn! Hãy đăng ký để bắt đầu
                 </p>
               </div>
-              {/* Name */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="lastName" className="block text-sm">
@@ -79,7 +77,6 @@ export function SignupForm({
                   )}
                 </div>
               </div>
-              {/* Username */}
               <div className="flex flex-col">
                 <div className="space-y-2">
                   <Label htmlFor="username" className="block text-sm">
@@ -91,7 +88,6 @@ export function SignupForm({
                   )}
                 </div>
               </div>
-              {/* Email & Password */}
               <div className="flex flex-col">
                 <div className="space-y-2">
                   <Label htmlFor="email" className="block text-sm">

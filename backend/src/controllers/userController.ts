@@ -9,6 +9,7 @@ import { AppError } from '@/utils/AppError.js'
 import { v2 as cloudinary } from 'cloudinary'
 import bcrypt from 'bcrypt'
 import Session from '@/models/Session.js'
+import { hashRefreshToken } from '@/utils/jwt.js'
 
 export const authMe = async (req: EmptyRequest, res: TypedResponse) => {
   if (!req.user) {
@@ -93,7 +94,7 @@ export const changePassword = async (
   await Session.deleteMany({
     userId: user._id,
     ...(typeof currentRefreshToken === 'string'
-      ? { refreshToken: { $ne: currentRefreshToken } }
+      ? { refreshToken: { $ne: hashRefreshToken(currentRefreshToken) } }
       : {})
   })
 

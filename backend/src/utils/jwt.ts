@@ -8,6 +8,11 @@ const ACCESS_TOKEN_TTL: SignOptions['expiresIn'] = '30m'
 
 export const REFRESH_TOKEN_TTL_MS = 14 * 24 * 60 * 60 * 1000
 
+export const MAX_ACTIVE_SESSIONS_PER_USER = 5
+
+export const hashRefreshToken = (token: string): string =>
+  crypto.createHash('sha256').update(token).digest('hex')
+
 export const signAccessToken = (userId: string) =>
   jwt.sign({ userId }, envConfig.ACCESS_TOKEN_SECRET, { expiresIn: ACCESS_TOKEN_TTL })
 

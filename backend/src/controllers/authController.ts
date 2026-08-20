@@ -6,9 +6,28 @@ import bcrypt from 'bcrypt'
 import Session from '@/models/Session.js'
 import { SignInBody, SignUpBody } from '@/types/auth.types.js'
 import type { EmptyRequest, TypedRequest, TypedResponse } from '@/types/api.types.js'
-import { generateRefreshToken, REFRESH_TOKEN_TTL_MS, signAccessToken } from '@/utils/jwt.js'
+import {
+  generateRefreshToken,
+  hashRefreshToken,
+  MAX_ACTIVE_SESSIONS_PER_USER,
+  REFRESH_TOKEN_TTL_MS,
+  signAccessToken
+} from '@/utils/jwt.js'
 import { AppError } from '@/utils/AppError.js'
 import { envConfig } from '@/config/env.js'
+import type { Types } from 'mongoose'
+
+const capUserSessions = async (userId: Types.ObjectId, currentSessionId: Types.ObjectId | undefined) => {
+  if (!currentSessionId) return
+  const excessiveSessions = await Session.find({ userId })
+    .sort({ createdAt: -1 })
+    .skip(MAX_ACTIVE_SESSIONS_PER_USER)
+    .select('_id')
+  if (excessiveSessions.length === 0) return
+  await Session.deleteMany({
+    _id: { $in: excessiveSessions.map((s) => s._id) }
+  })
+}
 
 export const signUp = async (req: TypedRequest<SignUpBody>, res: TypedResponse) => {
   const { username, password, email, firstName, lastName } = req.body
@@ -57,11 +76,13 @@ export const signIn = async (req: TypedRequest<SignInBody>, res: TypedResponse) 
 
   const refreshToken = generateRefreshToken()
 
-  await Session.create({
+  const session = await Session.create({
     userId: user._id,
-    refreshToken,
+    refreshToken: hashRefreshToken(refreshToken),
     expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL_MS)
   })
+
+  await capUserSessions(user._id, session._id)
 
   const isProduction = envConfig.NODE_ENV === 'production'
   res.cookie('refreshToken', refreshToken, {
@@ -85,7 +106,7 @@ export const signOut = async (req: EmptyRequest, res: TypedResponse) => {
   }
 
   await Session.findOneAndDelete({
-    refreshToken: token
+    refreshToken: hashRefreshToken(token)
   })
 
   const isProduction = envConfig.NODE_ENV === 'production'
@@ -105,7 +126,7 @@ export const refreshToken = async (req: EmptyRequest, res: TypedResponse) => {
     throw new AppError(COMMON_MESSAGES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED)
   }
 
-  const session = await Session.findOne({ refreshToken: token })
+  const session = await Session.findOne({ refreshToken: hashRefreshToken(token) })
 
   if (!session) {
     throw new AppError(COMMON_MESSAGES.FORBIDDEN, HTTP_STATUS.FORBIDDEN)
