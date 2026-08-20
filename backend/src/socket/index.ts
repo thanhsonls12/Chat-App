@@ -58,6 +58,35 @@ io.on('connection', async (socket) => {
     }
   })
 
+  const lastTypingEmitAt = new Map<string, number>()
+  const TYPING_THROTTLE_MS = 2000
+
+  const emitTyping = (conversationId: unknown, isTyping: boolean) => {
+    if (typeof conversationId !== 'string') return
+    if (!socket.rooms.has(conversationId)) return
+
+    const userId = socket.data.user._id.toString()
+    const now = Date.now()
+
+    if (!isTyping) {
+      lastTypingEmitAt.delete(conversationId)
+    } else {
+      const lastEmit = lastTypingEmitAt.get(conversationId) ?? 0
+      if (now - lastEmit < TYPING_THROTTLE_MS) return
+      lastTypingEmitAt.set(conversationId, now)
+    }
+
+    socket.to(conversationId).emit('user-typing', {
+      conversationId,
+      userId,
+      displayName: user.displayName,
+      isTyping
+    })
+  }
+
+  socket.on('typing', (conversationId) => emitTyping(conversationId, true))
+  socket.on('stop-typing', (conversationId) => emitTyping(conversationId, false))
+
   socket.on('disconnect', () => {
     const remainingSockets = onlineUsers.get(userId)
     remainingSockets?.delete(socket.id)

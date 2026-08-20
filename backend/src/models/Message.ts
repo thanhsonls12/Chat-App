@@ -19,6 +19,14 @@ const messageSchema = new mongoose.Schema(
     },
     imgUrl: {
       type: String
+    },
+    editedAt: {
+      type: Date,
+      default: null
+    },
+    deletedAt: {
+      type: Date,
+      default: null
     }
   },
   {
@@ -26,7 +34,7 @@ const messageSchema = new mongoose.Schema(
   }
 )
 
-messageSchema.index({ conversationId: 1, createdAt: -1 })
+messageSchema.index({ conversationId: 1, createdAt: -1, _id: -1 })
 
 export type IMessage = mongoose.InferSchemaType<typeof messageSchema>
 

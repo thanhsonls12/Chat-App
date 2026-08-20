@@ -8,6 +8,8 @@ export interface MessagePayload {
   content?: string | null
   imgUrl?: string | null
   createdAt: string
+  editedAt?: string | null
+  deletedAt?: string | null
 }
 
 export interface ConversationMessagePayload {
@@ -34,15 +36,26 @@ export interface ReadMessagePayload {
   messageId: string
 }
 
+export interface TypingPayload {
+  conversationId: string
+  userId: string
+  displayName: string
+  isTyping: boolean
+}
+
 export interface ServerToClientEvents {
   'new-group': (conversation: unknown) => void
   'new-message': (payload: NewMessagePayload) => void
+  'message-updated': (payload: MessagePayload) => void
   'read-message': (payload: ReadMessagePayload) => void
+  'user-typing': (payload: TypingPayload) => void
   onlineUsers: (userIds: string[]) => void
 }
 
 export interface ClientToServerEvents {
   'join-conversation': (conversationId: string) => void
+  typing: (conversationId: string) => void
+  'stop-typing': (conversationId: string) => void
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type

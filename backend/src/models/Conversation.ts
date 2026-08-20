@@ -42,11 +42,19 @@ const lastMessageSchema = new mongoose.Schema(
       type: String,
       default: null
     },
+    imgUrl: {
+      type: String,
+      default: null
+    },
     senderId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User'
     },
     createdAt: {
+      type: Date,
+      default: null
+    },
+    deletedAt: {
       type: Date,
       default: null
     }

@@ -28,14 +28,41 @@ type PopulatedParticipant = {
 }
 
 type PopulatedLastMessage = {
-  _id?: string
+  _id?: string | null
   content?: string | null
+  imgUrl?: string | null
   createdAt?: Date | null
+  deletedAt?: Date | null
   senderId?: {
     _id: Types.ObjectId
     displayName?: string
     avatarUrl?: string
   } | null
+}
+
+const mapParticipants = (participants: unknown) =>
+  ((participants ?? []) as PopulatedParticipant[]).map((p) => ({
+    _id: p.userId._id,
+    displayName: p.userId.displayName ?? '',
+    avatarUrl: p.userId.avatarUrl,
+    joinedAt: p.joined
+  }))
+
+const mapLastMessage = (lastMessage: unknown) => {
+  const data = lastMessage as PopulatedLastMessage | null
+  if (!data?._id || !data.senderId) return null
+  return {
+    _id: data._id,
+    content: data.content ?? '',
+    imgUrl: data.imgUrl ?? null,
+    createdAt: data.createdAt ?? null,
+    deletedAt: data.deletedAt ?? null,
+    sender: {
+      _id: data.senderId._id,
+      displayName: data.senderId.displayName ?? '',
+      avatarUrl: data.senderId.avatarUrl
+    }
+  }
 }
 
 export const createConversation = async (
@@ -125,13 +152,7 @@ export const createConversation = async (
     }
   ])
 
-  const participants = ((conversation.participants || []) as PopulatedParticipant[]).map((p) => ({
-    _id: p.userId._id,
-    displayName: p.userId.displayName,
-    avatarUrl: p.userId.avatarUrl,
-    joinedAt: p.joined
-  }))
-
+  const participants = mapParticipants(conversation.participants)
   const formatted = { ...conversation.toObject(), participants }
 
   if (type === 'group') {
@@ -175,15 +196,8 @@ export const getConversation = async (req: EmptyRequest, res: TypedResponse) => 
     .lean()
 
   const formatted = conversations.map((conversation) => {
-    const participants = ((conversation.participants || []) as PopulatedParticipant[]).map((p) => ({
-      _id: p.userId._id,
-      displayName: p.userId.displayName,
-      avatarUrl: p.userId.avatarUrl,
-      joinedAt: p.joined
-    }))
-
+    const participants = mapParticipants(conversation.participants)
     const otherParticipant = participants.find((p) => p._id.toString() !== userId.toString())
-    const lastMessage = conversation.lastMessage as unknown as PopulatedLastMessage | null
 
     return {
       ...conversation,
@@ -192,19 +206,7 @@ export const getConversation = async (req: EmptyRequest, res: TypedResponse) => 
       avatarUrl: conversation.type === 'direct' ? otherParticipant?.avatarUrl : null,
       unreadCounts: conversation.unreadCounts || {},
       participants,
-      lastMessage:
-        lastMessage?._id && lastMessage.senderId
-          ? {
-              _id: lastMessage._id,
-              content: lastMessage.content ?? '',
-              createdAt: lastMessage.createdAt,
-              sender: {
-                _id: lastMessage.senderId._id,
-                displayName: lastMessage.senderId.displayName ?? '',
-                avatarUrl: lastMessage.senderId.avatarUrl
-              }
-            }
-          : null
+      lastMessage: mapLastMessage(conversation.lastMessage)
     }
   })
 
@@ -319,8 +321,6 @@ export const markConversationRead = async (
   const lastMessageSenderId =
     lastMessage?.senderId != null ? String(lastMessage.senderId) : undefined
 
-  // Always notify sender when reader opens/reads after a message from someone else.
-  // (seenBy may still contain the user from an older message if reset was missed.)
   if (lastMessageId && lastMessageSenderId && lastMessageSenderId !== userId.toString()) {
     io.to(String(conversationId)).emit('read-message', {
       conversationId: String(conversationId),
