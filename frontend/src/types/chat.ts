@@ -83,6 +83,10 @@ export interface ReadMessageSocketPayload {
   messageId: string
 }
 
+export interface RemovedFromGroupSocketPayload {
+  conversationId: string
+}
+
 export interface TypingUser {
   userId: string
   displayName: string

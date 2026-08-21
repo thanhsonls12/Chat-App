@@ -104,5 +104,13 @@ export const CONVERSATION_MESSAGES = {
   DIRECT_CONVERSATION_REQUIRED: 'Conversation must be a direct conversation',
   MESSAGE_LIMIT_MUST_BE_VALID: 'Message limit must be between 1 and 100',
   MESSAGE_CURSOR_MUST_BE_DATE: 'Message cursor must be a valid date',
-  GROUP_CONVERSATION_REQUIRED: 'Conversation must be a group conversation'
+  GROUP_CONVERSATION_REQUIRED: 'Conversation must be a group conversation',
+  ONLY_ADMIN_CAN_MANAGE: 'Only the group admin can perform this action',
+  MEMBERS_ADDED: 'Members added successfully',
+  ALL_MEMBERS_ALREADY_IN_GROUP: 'All selected users are already members of this group',
+  MEMBER_NOT_IN_GROUP: 'This user is not a member of the group',
+  MEMBER_REMOVED: 'Member removed successfully',
+  CANNOT_REMOVE_YOURSELF: 'Use leave group to remove yourself',
+  LEFT_GROUP: 'You have left the group',
+  GROUP_UPDATED: 'Group updated successfully'
 } as const

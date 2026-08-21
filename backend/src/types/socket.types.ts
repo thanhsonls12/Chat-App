@@ -45,6 +45,8 @@ export interface TypingPayload {
 
 export interface ServerToClientEvents {
   'new-group': (conversation: unknown) => void
+  'group-updated': (conversation: unknown) => void
+  'removed-from-group': (payload: { conversationId: string }) => void
   'new-message': (payload: NewMessagePayload) => void
   'message-updated': (payload: MessagePayload) => void
   'read-message': (payload: ReadMessagePayload) => void
@@ -54,6 +56,7 @@ export interface ServerToClientEvents {
 
 export interface ClientToServerEvents {
   'join-conversation': (conversationId: string) => void
+  'leave-conversation': (conversationId: string) => void
   typing: (conversationId: string) => void
   'stop-typing': (conversationId: string) => void
 }

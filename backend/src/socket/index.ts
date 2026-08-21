@@ -87,6 +87,11 @@ io.on('connection', async (socket) => {
   socket.on('typing', (conversationId) => emitTyping(conversationId, true))
   socket.on('stop-typing', (conversationId) => emitTyping(conversationId, false))
 
+  socket.on('leave-conversation', async (conversationId) => {
+    if (typeof conversationId !== 'string') return
+    await socket.leave(conversationId)
+  })
+
   socket.on('disconnect', () => {
     const remainingSockets = onlineUsers.get(userId)
     remainingSockets?.delete(socket.id)

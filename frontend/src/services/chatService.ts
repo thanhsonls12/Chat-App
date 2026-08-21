@@ -82,4 +82,27 @@ export const chatService = {
     const res = await api.post('/conversations', { type, name, memberIds })
     return res.data.conversation
   },
+
+  async addGroupMembers(conversationId: string, memberIds: string[]) {
+    const res = await api.post(`/conversations/${conversationId}/members`, {
+      memberIds,
+    })
+    return res.data.conversation
+  },
+
+  async removeGroupMember(conversationId: string, memberId: string) {
+    const res = await api.delete(
+      `/conversations/${conversationId}/members/${memberId}`
+    )
+    return res.data.conversation
+  },
+
+  async leaveGroup(conversationId: string): Promise<void> {
+    await api.post(`/conversations/${conversationId}/leave`)
+  },
+
+  async updateGroup(conversationId: string, name: string) {
+    const res = await api.patch(`/conversations/${conversationId}`, { name })
+    return res.data.conversation
+  },
 }

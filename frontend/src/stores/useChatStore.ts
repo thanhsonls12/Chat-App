@@ -351,6 +351,22 @@ export const useChatStore = create<ChatState>()(
             ),
         }))
       },
+      removeConversation: (conversationId) => {
+        set((state) => {
+          const nextMessages = { ...state.messages }
+          delete nextMessages[conversationId]
+          return {
+            conversations: state.conversations.filter(
+              (item) => item._id !== conversationId
+            ),
+            messages: nextMessages,
+            activeConversationId:
+              state.activeConversationId === conversationId
+                ? null
+                : state.activeConversationId,
+          }
+        })
+      },
       addConvo: (convo) => {
         set((state) => {
           const exists = state.conversations.some(
@@ -383,6 +399,31 @@ export const useChatStore = create<ChatState>()(
         } finally {
           set({ loading: false })
         }
+      },
+      addGroupMembers: async (conversationId, memberIds) => {
+        const conversation = await chatService.addGroupMembers(
+          conversationId,
+          memberIds
+        )
+        get().updateConversation(conversation)
+      },
+      removeGroupMember: async (conversationId, memberId) => {
+        const conversation = await chatService.removeGroupMember(
+          conversationId,
+          memberId
+        )
+        get().updateConversation(conversation)
+      },
+      leaveGroup: async (conversationId) => {
+        await chatService.leaveGroup(conversationId)
+        get().removeConversation(conversationId)
+        useSocketStore
+          .getState()
+          .socket?.emit('leave-conversation', conversationId)
+      },
+      updateGroup: async (conversationId, name) => {
+        const conversation = await chatService.updateGroup(conversationId, name)
+        get().updateConversation(conversation)
       },
     }),
     {

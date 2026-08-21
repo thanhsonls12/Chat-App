@@ -81,12 +81,17 @@ export interface ChatState {
   editMessage: (messageId: string, content: string) => Promise<void>
   deleteMessage: (messageId: string) => Promise<void>
   updateConversation: (conversation: Conversation) => void
+  removeConversation: (conversationId: string) => void
   addConvo: (convo: Conversation) => void
   createConversation: (
     type: 'direct' | 'group',
     name: string,
     memberIds: string[]
   ) => Promise<void>
+  addGroupMembers: (conversationId: string, memberIds: string[]) => Promise<void>
+  removeGroupMember: (conversationId: string, memberId: string) => Promise<void>
+  leaveGroup: (conversationId: string) => Promise<void>
+  updateGroup: (conversationId: string, name: string) => Promise<void>
 }
 
 export interface SocketState {

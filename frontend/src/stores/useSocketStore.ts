@@ -8,6 +8,7 @@ import type {
   MessageUpdatedSocketPayload,
   NewMessageSocketPayload,
   ReadMessageSocketPayload,
+  RemovedFromGroupSocketPayload,
   TypingSocketPayload,
 } from '@/types/chat'
 
@@ -160,6 +161,18 @@ export const useSocketStore = create<SocketState>((set, get) => ({
       useChatStore.getState().addConvo(conversation)
       socket.emit('join-conversation', conversation._id)
     })
+
+    socket.on('group-updated', (conversation: Conversation) => {
+      useChatStore.getState().updateConversation(conversation)
+    })
+
+    socket.on(
+      'removed-from-group',
+      ({ conversationId }: RemovedFromGroupSocketPayload) => {
+        useChatStore.getState().removeConversation(conversationId)
+        socket.emit('leave-conversation', conversationId)
+      }
+    )
   },
   disconnectSocket: () => {
     const socket = get().socket

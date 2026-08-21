@@ -3,6 +3,7 @@ import { CONVERSATION_MESSAGES } from '@/constants/messages.js'
 import { AppError } from '@/utils/AppError.js'
 import { validate } from '@/utils/validation.js'
 import { checkSchema } from 'express-validator'
+import type { ParamSchema } from 'express-validator'
 
 export const createConversationValidator = validate(
   checkSchema(
@@ -70,6 +71,75 @@ export const createConversationValidator = validate(
     },
     ['body']
   )
+)
+
+const conversationIdParam: ParamSchema = {
+  in: ['params'],
+  notEmpty: {
+    errorMessage: CONVERSATION_MESSAGES.CONVERSATION_ID_REQUIRED
+  },
+  isMongoId: {
+    errorMessage: CONVERSATION_MESSAGES.CONVERSATION_ID_MUST_BE_MONGO_ID
+  }
+}
+
+export const addGroupMembersValidator = validate(
+  checkSchema({
+    conversationId: conversationIdParam,
+    memberIds: {
+      in: ['body'],
+      notEmpty: {
+        errorMessage: CONVERSATION_MESSAGES.MEMBER_IDS_REQUIRED
+      },
+      isArray: {
+        errorMessage: CONVERSATION_MESSAGES.MEMBER_IDS_MUST_BE_ARRAY
+      }
+    },
+    'memberIds.*': {
+      in: ['body'],
+      isMongoId: {
+        errorMessage: CONVERSATION_MESSAGES.MEMBER_ID_MUST_BE_MONGO_ID
+      }
+    }
+  })
+)
+
+export const removeGroupMemberValidator = validate(
+  checkSchema({
+    conversationId: conversationIdParam,
+    memberId: {
+      in: ['params'],
+      isMongoId: {
+        errorMessage: CONVERSATION_MESSAGES.MEMBER_ID_MUST_BE_MONGO_ID
+      }
+    }
+  })
+)
+
+export const leaveGroupValidator = validate(
+  checkSchema({
+    conversationId: conversationIdParam
+  })
+)
+
+export const updateGroupValidator = validate(
+  checkSchema({
+    conversationId: conversationIdParam,
+    name: {
+      in: ['body'],
+      notEmpty: {
+        errorMessage: CONVERSATION_MESSAGES.GROUP_NAME_REQUIRED
+      },
+      isString: {
+        errorMessage: CONVERSATION_MESSAGES.GROUP_NAME_MUST_BE_STRING
+      },
+      isLength: {
+        options: { min: 1, max: 100 },
+        errorMessage: CONVERSATION_MESSAGES.GROUP_NAME_LENGTH
+      },
+      trim: true
+    }
+  })
 )
 
 export const getMessagesValidator = validate(

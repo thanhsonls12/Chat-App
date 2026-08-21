@@ -6,6 +6,7 @@ import { Separator } from '../ui/separator'
 import UserAvatar from './UserAvatar'
 import StatusBadge from './StatusBadge'
 import GroupChatAvatar from './GroupChatAvatar'
+import GroupSettingsDialog from './GroupSettingsDialog'
 import { useSocketStore } from '@/stores/useSocketStore'
 
 export default function ChatWindowHeader({ chat }: { chat?: Conversation }) {
@@ -61,6 +62,11 @@ export default function ChatWindowHeader({ chat }: { chat?: Conversation }) {
           <h2 className="font-semibold text-foreground">
             {chat.type === 'direct' ? otherUser?.displayName : chat.group.name}
           </h2>
+          {chat.type === 'group' && (
+            <div className="ml-auto">
+              <GroupSettingsDialog conversation={chat} />
+            </div>
+          )}
         </div>
       </div>
     </header>

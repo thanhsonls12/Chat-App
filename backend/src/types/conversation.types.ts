@@ -12,6 +12,19 @@ export interface GetMessagesParams extends ParamsDictionary {
   conversationId: string
 }
 
+export interface RemoveMemberParams extends ParamsDictionary {
+  conversationId: string
+  memberId: string
+}
+
+export interface AddGroupMembersBody {
+  memberIds: string[]
+}
+
+export interface UpdateGroupBody {
+  name?: string
+}
+
 export interface GetMessagesQuery extends Query {
   limit?: string
   cursor?: string
