@@ -1,28 +1,28 @@
 import { useSocketStore } from '@/stores/useSocketStore'
 import type { Conversation } from '@/types/chat'
-
-const buildLabel = (names: string[], isGroup: boolean) => {
-  if (!isGroup) return 'đang soạn tin'
-  if (names.length === 1) return `${names[0]} đang soạn tin`
-  if (names.length === 2) return `${names[0]} và ${names[1]} đang soạn tin`
-  return `${names[0]} và ${names.length - 1} người khác đang soạn tin`
-}
+import { useI18n } from '@/i18n'
 
 export default function TypingIndicator({
   conversation,
 }: {
   conversation: Conversation
 }) {
+  const { t } = useI18n()
   const typingUsers = useSocketStore(
     (state) => state.typingUsers[conversation._id]
   )
 
   if (!typingUsers?.length) return null
 
-  const label = buildLabel(
-    typingUsers.map((u) => u.displayName),
-    conversation.type === 'group'
-  )
+  const names = typingUsers.map((u) => u.displayName)
+  const label =
+    conversation.type !== 'group'
+      ? t('typing')
+      : names.length === 1
+        ? `${names[0]} ${t('typing')}`
+        : names.length === 2
+          ? `${names[0]} ${t('and')} ${names[1]} ${t('typing')}`
+          : `${names[0]} ${t('and')} ${names.length - 1} ${t('andOtherTyping')}`
 
   return (
     <div className="flex items-center gap-2 px-1 py-1 text-xs text-muted-foreground">

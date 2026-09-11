@@ -15,8 +15,7 @@ import { Check, MoreHorizontal, Pencil, Undo2, X } from 'lucide-react'
 import { useState } from 'react'
 import { useChatStore } from '@/stores/useChatStore'
 import { toast } from 'sonner'
-
-const RECALLED_TEXT = 'Tin nhắn đã được thu hồi'
+import { useI18n } from '@/i18n'
 
 interface MessageItemProps {
   message: Message
@@ -33,6 +32,7 @@ export default function MessageItem({
   selectedConvo,
 }: MessageItemProps) {
   const { editMessage, deleteMessage } = useChatStore()
+  const { t } = useI18n()
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(message.content ?? '')
   const [saving, setSaving] = useState(false)
@@ -68,7 +68,7 @@ export default function MessageItem({
       await editMessage(message._id, content)
       setEditing(false)
     } catch {
-      toast.error('Không sửa được tin nhắn. Vui lòng thử lại.')
+      toast.error(t('editMessageFailed'))
     } finally {
       setSaving(false)
     }
@@ -78,7 +78,7 @@ export default function MessageItem({
     try {
       await deleteMessage(message._id)
     } catch {
-      toast.error('Không thu hồi được tin nhắn. Vui lòng thử lại.')
+      toast.error(t('recallMessageFailed'))
     }
   }
 
@@ -108,7 +108,7 @@ export default function MessageItem({
               variant="ghost"
               size="icon"
               className="size-7 self-center opacity-100 transition-opacity duration-150 ease-linear focus-visible:opacity-100 motion-reduce:transition-none [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100"
-              aria-label="Tùy chọn tin nhắn"
+              aria-label={t('messageOptions')}
             >
               <MoreHorizontal className="size-4" />
             </Button>
@@ -117,13 +117,13 @@ export default function MessageItem({
             {canEdit && (
               <DropdownMenuItem onClick={startEditing}>
                 <Pencil className="size-4" />
-                Sửa
+                {t('edit')}
               </DropdownMenuItem>
             )}
             {canRecall && (
               <DropdownMenuItem variant="destructive" onClick={recall}>
                 <Undo2 className="size-4" />
-                Thu hồi
+                {t('recall')}
               </DropdownMenuItem>
             )}
           </DropdownMenuContent>
@@ -151,7 +151,7 @@ export default function MessageItem({
                 if (e.key === 'Escape') setEditing(false)
               }}
               className="h-8 text-sm"
-              aria-label="Sửa tin nhắn"
+              aria-label={t('editMessage')}
             />
             <Button
               size="icon"
@@ -159,7 +159,7 @@ export default function MessageItem({
               className="size-7"
               disabled={saving}
               onClick={saveEdit}
-              aria-label="Lưu tin nhắn"
+              aria-label={t('saveMessage')}
             >
               <Check className="size-4" />
             </Button>
@@ -169,7 +169,7 @@ export default function MessageItem({
               className="size-7"
               disabled={saving}
               onClick={() => setEditing(false)}
-              aria-label="Hủy sửa tin nhắn"
+              aria-label={t('cancelEditMessage')}
             >
               <X className="size-4" />
             </Button>
@@ -185,14 +185,14 @@ export default function MessageItem({
           >
             {isRecalled ? (
               <p className="text-sm italic leading-relaxed opacity-70">
-                {RECALLED_TEXT}
+                {t('messageRecalled')}
               </p>
             ) : (
               <>
                 {message.imgUrl && (
                   <img
                     src={message.imgUrl}
-                    alt="Ảnh tin nhắn"
+                    alt={t('messageImage')}
                     loading="lazy"
                     className="rounded-lg max-w-60 max-h-60 object-cover cursor-pointer"
                     onClick={() => window.open(message.imgUrl!, '_blank')}
@@ -210,7 +210,7 @@ export default function MessageItem({
         {(isGroupBreak || message.editedAt) && !editing && (
           <span className="text-xs text-muted-foreground px-1">
             {formatMessageTime(new Date(message.createdAt))}
-            {message.editedAt && !isRecalled && ' · đã sửa'}
+            {message.editedAt && !isRecalled && ` · ${t('edited')}`}
           </span>
         )}
         {message.isOwn &&
@@ -225,7 +225,7 @@ export default function MessageItem({
                   : 'bg-muted text-muted-foreground'
               )}
             >
-              {lastMessageStatus === 'seen' ? 'Đã xem' : 'Đã gửi'}
+              {lastMessageStatus === 'seen' ? t('seen') : t('sent')}
             </Badge>
           )}
       </div>

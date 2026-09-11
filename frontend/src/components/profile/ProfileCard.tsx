@@ -17,6 +17,7 @@ import { Textarea } from '../ui/textarea'
 import UserAvatar from '../chat/UserAvatar'
 import AvatarUploader from './AvatarUploader'
 import PasswordChangeForm from './PasswordChangeForm'
+import { useI18n } from '@/i18n'
 
 const profileSchema = z.object({
   displayName: z
@@ -41,6 +42,7 @@ interface ProfileCardProps {
 }
 
 export default function ProfileCard({ user }: ProfileCardProps) {
+  const { t } = useI18n()
   const onlineUsers = useSocketStore((state) => state.onlineUsers)
   const { updateProfile, updatingProfile } = useUserStore()
   const isOnline = onlineUsers.includes(user._id)
@@ -98,7 +100,7 @@ export default function ProfileCard({ user }: ProfileCardProps) {
                 isOnline ? 'animate-pulse bg-green-500' : 'bg-slate-500'
               )}
             />
-            {isOnline ? 'Đang hoạt động' : 'Ngoại tuyến'}
+            {isOnline ? t('online') : t('offline')}
           </Badge>
         </div>
       </div>
@@ -112,19 +114,19 @@ export default function ProfileCard({ user }: ProfileCardProps) {
         <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field>
-              <FieldLabel htmlFor="profile-username">Tên đăng nhập</FieldLabel>
+              <FieldLabel htmlFor="profile-username">{t('username')}</FieldLabel>
               <Input id="profile-username" value={user.username} disabled />
-              <FieldDescription>Không thể thay đổi tên đăng nhập.</FieldDescription>
+              <FieldDescription>{t('usernameLocked')}</FieldDescription>
             </Field>
             <Field>
-              <FieldLabel htmlFor="profile-email">Email</FieldLabel>
+              <FieldLabel htmlFor="profile-email">{t('email')}</FieldLabel>
               <Input id="profile-email" type="email" value={user.email} disabled />
-              <FieldDescription>Email đang liên kết với tài khoản.</FieldDescription>
+              <FieldDescription>{t('linkedEmail')}</FieldDescription>
             </Field>
           </div>
 
           <Field data-invalid={Boolean(errors.displayName)}>
-            <FieldLabel htmlFor="profile-display-name">Tên hiển thị</FieldLabel>
+            <FieldLabel htmlFor="profile-display-name">{t('displayName')}</FieldLabel>
             <Input
               id="profile-display-name"
               maxLength={100}
@@ -135,7 +137,7 @@ export default function ProfileCard({ user }: ProfileCardProps) {
           </Field>
 
           <Field data-invalid={Boolean(errors.phone)}>
-            <FieldLabel htmlFor="profile-phone">Số điện thoại</FieldLabel>
+            <FieldLabel htmlFor="profile-phone">{t('phone')}</FieldLabel>
             <Input
               id="profile-phone"
               type="tel"
@@ -148,16 +150,16 @@ export default function ProfileCard({ user }: ProfileCardProps) {
           </Field>
 
           <Field data-invalid={Boolean(errors.bio)}>
-            <FieldLabel htmlFor="profile-bio">Giới thiệu</FieldLabel>
+            <FieldLabel htmlFor="profile-bio">{t('bio')}</FieldLabel>
             <Textarea
               id="profile-bio"
               rows={4}
               maxLength={500}
-              placeholder="Chia sẻ đôi chút về bạn..."
+              placeholder={t('bioPlaceholder')}
               aria-invalid={Boolean(errors.bio)}
               {...register('bio')}
             />
-            <FieldDescription>Tối đa 500 ký tự.</FieldDescription>
+            <FieldDescription>{t('max500')}</FieldDescription>
             <FieldError errors={[errors.bio]} />
           </Field>
 
@@ -168,7 +170,7 @@ export default function ProfileCard({ user }: ProfileCardProps) {
               ) : (
                 <Save />
               )}
-              {updatingProfile ? 'Đang lưu...' : 'Lưu thay đổi'}
+              {updatingProfile ? t('saving') : t('saveChanges')}
             </Button>
           </div>
         </form>

@@ -2,21 +2,23 @@ import { useFriendStore } from '@/stores/useFriendStore'
 import FriendRequestItem from './FriendRequestItem'
 import { Button } from '../ui/button'
 import { toast } from 'sonner'
+import { useI18n } from '@/i18n'
 
 export default function ReceivedRequest() {
+  const { t } = useI18n()
   const { acceptRequest, declineRequest, loading, receivedList } =
     useFriendStore()
   if (!receivedList || receivedList.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
-        Bạn chưa có lời mời kết bạn
+        {t('noReceivedRequests')}
       </p>
     )
   }
   const handleAccept = async (requestId: string) => {
     try {
       await acceptRequest(requestId)
-      toast.success('Đã đồng ý kết bạn thành công')
+      toast.success(t('friendAccepted'))
     } catch (error) {
       console.error(error)
     }
@@ -25,7 +27,7 @@ export default function ReceivedRequest() {
   const handleDecline = async (requestId: string) => {
     try {
       await declineRequest(requestId)
-      toast.info('Đã từ chối lời mời kết bạn')
+      toast.info(t('friendDeclined'))
     } catch (error) {
       console.error(error)
     }
@@ -44,7 +46,7 @@ export default function ReceivedRequest() {
                 onClick={() => handleAccept(req._id)}
                 disabled={loading}
               >
-                Chấp nhận
+                {t('accept')}
               </Button>
               <Button
                 size="sm"
@@ -52,7 +54,7 @@ export default function ReceivedRequest() {
                 onClick={() => handleDecline(req._id)}
                 disabled={loading}
               >
-                Từ chối
+                {t('decline')}
               </Button>
             </div>
           }

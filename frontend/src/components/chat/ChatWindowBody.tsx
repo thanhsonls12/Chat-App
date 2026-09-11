@@ -5,6 +5,7 @@ import TypingIndicator from './TypingIndicator'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useCallback, useLayoutEffect, useRef } from 'react'
 import { LoaderCircle } from 'lucide-react'
+import { useI18n } from '@/i18n'
 
 const LOAD_MORE_THRESHOLD = 80
 
@@ -27,6 +28,7 @@ export default function ChatWindowBody() {
     fetchMessages,
   } = useChatStore()
   const user = useAuthStore((state) => state.user)
+  const { t } = useI18n()
   const selectedConvo = conversations.find(
     (c) => c._id === activeConversationId
   )
@@ -128,7 +130,7 @@ export default function ChatWindowBody() {
   if (!messages?.length) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-2 text-muted-foreground">
-        <p>Chưa có tin nhắn nào trong cuộc trò chuyện này</p>
+        <p>{t('noMessages')}</p>
         <TypingIndicator conversation={selectedConvo} />
       </div>
     )
@@ -146,14 +148,14 @@ export default function ChatWindowBody() {
           <div className="flex justify-center py-2">
             <LoaderCircle
               className="size-5 animate-spin text-muted-foreground"
-              aria-label="Đang tải tin nhắn cũ"
+              aria-label={t('loadingOlderMessages')}
             />
           </div>
         )}
 
         {!hasMore && messages.length > 0 && (
           <p className="py-2 text-center text-xs text-muted-foreground">
-            Bạn đã xem hết tin nhắn
+            {t('allMessagesViewed')}
           </p>
         )}
 

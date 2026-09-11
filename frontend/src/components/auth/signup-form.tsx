@@ -8,21 +8,28 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useNavigate } from 'react-router'
-const signUpSchema = z.object({
-  firstName: z.string().min(1, 'Tên bắt buộc phải có'),
-  lastName: z.string().min(1, 'Họ bắt buộc phải có'),
-  username: z.string().min(3, 'Tên đăng nhập phải có ít nhất 3 ký tự'),
-  email: z.email('Email không hợp lệ'),
-  password: z.string().min(6, 'Mật khẩu phải có ít nhất 6 ký tự'),
-})
+import { useI18n } from '@/i18n'
+import { useMemo } from 'react'
 
-type SignUpFormValue = z.infer<typeof signUpSchema>
 export function SignupForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
   const { signUp } = useAuthStore()
   const navigate = useNavigate()
+  const { t } = useI18n()
+  const signUpSchema = useMemo(
+    () =>
+      z.object({
+        firstName: z.string().min(1, t('firstNameRequired')),
+        lastName: z.string().min(1, t('lastNameRequired')),
+        username: z.string().min(3, t('usernameMin')),
+        email: z.email(t('emailInvalid')),
+        password: z.string().min(6, t('passwordMin')),
+      }),
+    [t]
+  )
+  type SignUpFormValue = z.infer<typeof signUpSchema>
   const {
     register,
     handleSubmit,
@@ -48,15 +55,15 @@ export function SignupForm({
                 <a href="/" className="mx-auto block w-fit text-center">
                   <img src="/logo.svg" alt="Logo" className="h-12 w-auto" />
                 </a>
-                <h1 className="text-xl font-bold">Tạo tài khoản Chat</h1>
+                <h1 className="text-xl font-bold">{t('signUpTitle')}</h1>
                 <p className="text-muted-foreground text-balance">
-                  Chào mừng bạn! Hãy đăng ký để bắt đầu
+                  {t('signUpWelcome')}
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="lastName" className="block text-sm">
-                    Họ
+                    {t('lastName')}
                   </Label>
                   <Input type="text" id="lastName" {...register('lastName')} />
                   {errors.lastName && (
@@ -65,7 +72,7 @@ export function SignupForm({
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="firstName" className="block text-sm">
-                    Tên
+                    {t('firstName')}
                   </Label>
                   <Input
                     type="text"
@@ -80,7 +87,7 @@ export function SignupForm({
               <div className="flex flex-col">
                 <div className="space-y-2">
                   <Label htmlFor="username" className="block text-sm">
-                    Tên đăng nhập
+                    {t('username')}
                   </Label>
                   <Input type="text" id="username" {...register('username')} />
                   {errors.username && (
@@ -91,7 +98,7 @@ export function SignupForm({
               <div className="flex flex-col">
                 <div className="space-y-2">
                   <Label htmlFor="email" className="block text-sm">
-                    Email
+                    {t('email')}
                   </Label>
                   <Input
                     type="email"
@@ -107,7 +114,7 @@ export function SignupForm({
               <div className="flex flex-col">
                 <div className="space-y-2">
                   <Label htmlFor="password" className="block text-sm">
-                    Mật khẩu
+                    {t('password')}
                   </Label>
                   <Input
                     type="password"
@@ -120,21 +127,21 @@ export function SignupForm({
                 </div>
               </div>
               <Button type="submit" className="w-full" disabled={isSubmitting}>
-                Tạo tài khoản
+                {t('createAccount')}
               </Button>
               <div className="text-center text-sm ">
-                Đã có tài khoản?{' '}
+                {t('haveAccount')}{' '}
                 <a
                   href="/signin"
                   className="underline underline-offset-4 text-primary"
                 >
-                  Đăng nhập
+                  {t('signIn')}
                 </a>
               </div>
               <div className="text-balance px-2 text-center text-sm text-muted-foreground *:[a]:underline *:[a]:underline-offset-4 *:[a]:hover:text-primary">
-                Bằng cách tiếp tục, bạn đồng ý với{' '}
-                <a href="#">Điều khoản dịch vụ</a> và{' '}
-                <a href="#">Chính sách bảo mật</a> của chúng tôi.
+                {t('continueNotice')}{' '}
+                <a href="#">{t('terms')}</a> {t('and')}{' '}
+                <a href="#">{t('privacy')}</a> {t('ourSuffix')}
               </div>
             </div>
           </form>

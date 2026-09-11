@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import ReceivedRequest from './ReceivedRequest'
 import SentRequests from './SentRequests'
+import { useI18n } from '@/i18n'
 
 interface FriendRequestDiaglogProps {
   open: boolean
@@ -15,6 +16,7 @@ export default function FriendRequestsDialog({
   setOpen,
 }: FriendRequestDiaglogProps) {
   const [tab, setTab] = useState('received')
+  const { t } = useI18n()
   const { getAllFriendRequests } = useFriendStore()
   useEffect(() => {
     if (!open) return
@@ -32,12 +34,12 @@ export default function FriendRequestsDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Lời mời kết bạn</DialogTitle>
+          <DialogTitle>{t('friendRequests')}</DialogTitle>
         </DialogHeader>
         <Tabs value={tab} onValueChange={setTab} className="w-full ">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="received">Đã nhận</TabsTrigger>
-            <TabsTrigger value="sent">Đã gửi</TabsTrigger>
+            <TabsTrigger value="received">{t('received')}</TabsTrigger>
+            <TabsTrigger value="sent">{t('sentTab')}</TabsTrigger>
           </TabsList>
           <TabsContent value="received">
             <ReceivedRequest />

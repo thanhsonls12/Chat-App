@@ -4,6 +4,7 @@ import type { Conversation } from '@/types/chat'
 import ChatCard from './ChatCard'
 import UnreadCountBadge from './UnreadCountBadge'
 import GroupChatAvatar from './GroupChatAvatar'
+import { useI18n } from '@/i18n'
 
 export default function GroupChatCard({
   conversation,
@@ -11,6 +12,7 @@ export default function GroupChatCard({
   conversation: Conversation
 }) {
   const { user } = useAuthStore()
+  const { t } = useI18n()
   const {
     activeConversationId,
     setActiveConversation,
@@ -52,7 +54,7 @@ export default function GroupChatCard({
       }
       subtitle={
         <p className="text-sm truncate text-muted-foreground">
-          {conversation.participants.length} members
+          {conversation.participants.length} {t('members')}
         </p>
       }
     />

@@ -9,6 +9,7 @@ import { useChatStore } from '@/stores/useChatStore'
 import { useSocketStore } from '@/stores/useSocketStore'
 import { toast } from 'sonner'
 import { isAxiosError } from 'axios'
+import { useI18n } from '@/i18n'
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024
 
@@ -39,6 +40,7 @@ export default function MessageInput({
   selectedConvo: Conversation
 }) {
   const { user } = useAuthStore()
+  const { t } = useI18n()
   const { sendDirectMessage, sendGroupMessage } = useChatStore()
   const emitTyping = useSocketStore((state) => state.emitTyping)
   const [value, setValue] = useState('')
@@ -90,11 +92,11 @@ export default function MessageInput({
   const pickImage = (file: File | undefined) => {
     if (!file) return
     if (!file.type.startsWith('image/')) {
-      toast.error('Chỉ hỗ trợ tệp ảnh.')
+      toast.error(t('imageOnly'))
       return
     }
     if (file.size > MAX_IMAGE_SIZE) {
-      toast.error('Ảnh phải nhỏ hơn 5 MB.')
+      toast.error(t('imageTooLarge'))
       return
     }
     setImage(file)
@@ -118,7 +120,7 @@ export default function MessageInput({
       if (selectedConvo.type === 'direct') {
         const otherUser = selectedConvo.participants.find((p) => p._id !== user._id)
         if (!otherUser) {
-          toast.error('Không tìm thấy người nhận tin nhắn.')
+          toast.error(t('recipientNotFound'))
           return
         }
         await sendDirectMessage(otherUser._id, content, imageToSend ?? undefined)
@@ -146,14 +148,14 @@ export default function MessageInput({
         <div className="relative inline-block mb-2">
           <img
             src={previewUrl}
-            alt="Ảnh đã chọn"
+            alt={t('selectedImage')}
             className="h-20 max-w-40 object-cover rounded-lg border border-border/50"
           />
           <button
             type="button"
             onClick={clearImage}
             className="absolute -top-2 -right-2 size-5 rounded-full bg-background border border-border flex items-center justify-center text-muted-foreground hover:text-foreground"
-            aria-label="Bỏ ảnh đã chọn"
+            aria-label={t('removeSelectedImage')}
           >
             <X className="size-3" />
           </button>
@@ -172,7 +174,7 @@ export default function MessageInput({
           size="icon"
           className="hover:bg-primary/10 transition-smooth"
           onClick={() => fileInputRef.current?.click()}
-          aria-label="Chọn ảnh để gửi"
+          aria-label={t('chooseImage')}
         >
           <ImagePlus className="size-4" />
         </Button>
@@ -184,7 +186,7 @@ export default function MessageInput({
               if (e.target.value.trim() !== '') signalTyping()
               else stopTyping()
             }}
-            placeholder="Soạn tin nhắn..."
+            placeholder={t('composeMessage')}
             className="pr-20 h-9 bg-white border-border/50 focus:border-primary/50 transition-smooth resize-none"
             onKeyDown={handleKeyPress}
           ></Input>

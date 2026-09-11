@@ -1,12 +1,14 @@
 import { useFriendStore } from '@/stores/useFriendStore'
 import FriendRequestItem from './FriendRequestItem'
+import { useI18n } from '@/i18n'
 
 export default function SentRequests() {
+  const { t } = useI18n()
   const { sentList } = useFriendStore()
   if (!sentList || sentList.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
-        Bạn chưa gửi lời mời kết bạn nào
+        {t('noSentRequests')}
       </p>
     )
   }
@@ -18,7 +20,7 @@ export default function SentRequests() {
           requestInfo={req}
           type="sent"
           actions={
-            <p className="text-sm text-muted-foreground">Đang chờ trả lời...</p>
+            <p className="text-sm text-muted-foreground">{t('awaitingReply')}</p>
           }
         />
       ))}

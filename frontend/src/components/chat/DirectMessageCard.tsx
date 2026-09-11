@@ -8,6 +8,7 @@ import StatusBadge from './StatusBadge'
 import UnreadCountBadge from './UnreadCountBadge'
 import { useSocketStore } from '@/stores/useSocketStore'
 import { Image as ImageIcon } from 'lucide-react'
+import { useI18n } from '@/i18n'
 
 export default function DirectMessageCard({
   conversation,
@@ -15,6 +16,7 @@ export default function DirectMessageCard({
   conversation: Conversation
 }) {
   const { user } = useAuthStore()
+  const { t } = useI18n()
   const {
     activeConversationId,
     setActiveConversation,
@@ -29,9 +31,9 @@ export default function DirectMessageCard({
   if (!otherUser) return null
   const unreadCount = conversation.unreadCounts[user._id]
   const lastMessage = conversation.lastMessage?.deletedAt
-    ? 'Tin nhắn đã được thu hồi'
+    ? t('messageRecalled')
     : conversation.lastMessage?.content ||
-      (conversation.lastMessage?.imgUrl ? 'Đã gửi một ảnh' : '')
+      (conversation.lastMessage?.imgUrl ? t('imageSent') : '')
   const handleSelectConversation = async (id: string) => {
     setActiveConversation(id)
     if (!messages[id] || messages[id].nextCursor === undefined) {
@@ -75,7 +77,7 @@ export default function DirectMessageCard({
               : 'text-muted-foreground'
           )}
         >
-          {lastMessage === 'Đã gửi một ảnh' && (
+          {lastMessage === t('imageSent') && (
             <ImageIcon className="size-3.5 inline-block mr-1 -mt-0.5" />
           )}
           {lastMessage}

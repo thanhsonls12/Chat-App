@@ -20,6 +20,7 @@ import UserAvatar from './UserAvatar'
 import InviteSuggestionList from '../newGroupChat/InviteSuggestionList'
 import SelectedUsersList from '../newGroupChat/SelectedUsersList'
 import { toast } from 'sonner'
+import { useI18n } from '@/i18n'
 
 export default function GroupSettingsDialog({
   conversation,
@@ -27,6 +28,7 @@ export default function GroupSettingsDialog({
   conversation: Conversation
 }) {
   const { user } = useAuthStore()
+  const { t } = useI18n()
   const { friends, getFriends } = useFriendStore()
   const { addGroupMembers, removeGroupMember, leaveGroup, updateGroup } =
     useChatStore()
@@ -64,7 +66,7 @@ export default function GroupSettingsDialog({
       await updateGroup(conversationId, trimmed)
       setEditingName(false)
     } catch {
-      toast.error('Không thể đổi tên nhóm. Vui lòng thử lại.')
+      toast.error(t('renameGroupFailed'))
     } finally {
       setBusy(false)
     }
@@ -81,9 +83,9 @@ export default function GroupSettingsDialog({
       setInvitedUsers([])
       setSearch('')
       setShowAddPanel(false)
-      toast.success('Đã thêm thành viên vào nhóm')
+      toast.success(t('membersAdded'))
     } catch {
-      toast.error('Không thể thêm thành viên. Vui lòng thử lại.')
+      toast.error(t('addMembersFailed'))
     } finally {
       setBusy(false)
     }
@@ -94,7 +96,7 @@ export default function GroupSettingsDialog({
       setBusy(true)
       await removeGroupMember(conversationId, memberId)
     } catch {
-      toast.error('Không thể xoá thành viên. Vui lòng thử lại.')
+      toast.error(t('removeMemberFailed'))
     } finally {
       setBusy(false)
     }
@@ -104,9 +106,9 @@ export default function GroupSettingsDialog({
     try {
       setBusy(true)
       await leaveGroup(conversationId)
-      toast.success('Bạn đã rời khỏi nhóm')
+      toast.success(t('leftGroup'))
     } catch {
-      toast.error('Không thể rời nhóm. Vui lòng thử lại.')
+      toast.error(t('leaveGroupFailed'))
       setBusy(false)
     }
   }
@@ -138,17 +140,17 @@ export default function GroupSettingsDialog({
           className="rounded-full hover:bg-sidebar-accent"
         >
           <Settings className="size-4" />
-          <span className="sr-only">Cài đặt nhóm</span>
+          <span className="sr-only">{t('groupSettings')}</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[440px] border-none">
         <DialogHeader>
-          <DialogTitle>Thông tin nhóm</DialogTitle>
+          <DialogTitle>{t('groupInfo')}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="space-y-1">
-            <label className="text-sm font-semibold">Tên nhóm</label>
+            <label className="text-sm font-semibold">{t('groupName')}</label>
             {editingName ? (
               <div className="flex items-center gap-2">
                 <Input
@@ -198,7 +200,7 @@ export default function GroupSettingsDialog({
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <label className="text-sm font-semibold">
-                Thành viên ({conversation.participants.length})
+                {t('members')} ({conversation.participants.length})
               </label>
               <Button
                 variant="ghost"
@@ -206,14 +208,14 @@ export default function GroupSettingsDialog({
                 onClick={() => setShowAddPanel((v) => !v)}
               >
                 <UserPlus className="size-4 mr-1" />
-                Thêm
+                {t('add')}
               </Button>
             </div>
 
             {showAddPanel && (
               <div className="space-y-2 rounded-lg border p-2">
                 <Input
-                  placeholder="Tìm bạn bè theo tên..."
+                  placeholder={t('searchFriends')}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
@@ -234,7 +236,7 @@ export default function GroupSettingsDialog({
                     disabled={busy}
                     onClick={handleAddMembers}
                   >
-                    Thêm {invitedUsers.length} thành viên
+                    {t('add')} {invitedUsers.length} {t('members')}
                   </Button>
                 )}
               </div>
@@ -258,7 +260,7 @@ export default function GroupSettingsDialog({
                     />
                     <span className="flex-1 font-medium truncate">
                       {member.displayName}
-                      {member._id === user?._id && ' (Bạn)'}
+                      {member._id === user?._id && ` (${t('you')})`}
                     </span>
                     {memberIsAdmin && <Badge variant="secondary">Admin</Badge>}
                     {canKick && (
@@ -288,13 +290,13 @@ export default function GroupSettingsDialog({
                 disabled={busy}
                 onClick={handleLeave}
               >
-                Xác nhận rời nhóm
+                {t('confirmLeaveGroup')}
               </Button>
               <Button
                 variant="ghost"
                 onClick={() => setConfirmingLeave(false)}
               >
-                Huỷ
+                {t('cancel')}
               </Button>
             </div>
           ) : (
@@ -304,7 +306,7 @@ export default function GroupSettingsDialog({
               onClick={() => setConfirmingLeave(true)}
             >
               <LogOut className="size-4 mr-2" />
-              Rời nhóm
+              {t('leaveGroup')}
             </Button>
           )}
         </DialogFooter>
