@@ -24,10 +24,13 @@ import { useThemeStore } from '@/stores/useThemeStore'
 import { Switch } from '../ui/switch'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { NavUser } from './nav-user'
+import LanguageSwitcher from '../LanguageSwitcher'
+import { useI18n } from '@/i18n'
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { isDark, toggleTheme } = useThemeStore()
   const { user } = useAuthStore()
+  const { t } = useI18n()
   return (
     <Sidebar variant="inset" {...props}>
       <SidebarHeader>
@@ -42,6 +45,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <div className="flex w-full items-center px-2 justify-between">
                   <h1 className="text-xl font-bold text-white">Chat-App</h1>
                   <div className="flex items-center gap-2 justify-between">
+                    <LanguageSwitcher />
                     <Sun className="size-4 text-white/80" />
                     <Switch
                       checked={isDark}
@@ -65,9 +69,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel className="uppercase">Nhóm Chat</SidebarGroupLabel>
+          <SidebarGroupLabel className="uppercase">{t('chatGroups')}</SidebarGroupLabel>
 
-          <SidebarGroupAction title="Tạo Nhóm" className="cursor-pointer">
+          <SidebarGroupAction title={t('createGroup')} className="cursor-pointer">
             <NewGroupChatModal />
           </SidebarGroupAction>
 
@@ -77,7 +81,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel className="uppercase">Bạn Bè</SidebarGroupLabel>
+          <SidebarGroupLabel className="uppercase">{t('friends')}</SidebarGroupLabel>
 
           <AddFriendModal />
 

@@ -4,6 +4,7 @@ import { authService } from '@/services/authService'
 import type { AuthState } from '@/types/store'
 import { persist } from 'zustand/middleware'
 import { useChatStore } from './useChatStore'
+import { t } from '@/i18n'
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
@@ -35,11 +36,11 @@ export const useAuthStore = create<AuthState>()(
           )
 
           toast.success(
-            'Đăng ký thành công! Bạn sẽ được chuyển sang trang đăng nhập'
+            t('signUpSuccess')
           )
         } catch (error) {
           console.error(error)
-          toast.error('Đăng ký không thành công')
+          toast.error(t('signUpFailed'))
           throw error
         } finally {
           set({ loading: false })
@@ -54,10 +55,10 @@ export const useAuthStore = create<AuthState>()(
           get().setAccessToken(accessToken)
           await get().fetchMe()
           useChatStore.getState().fetchConversations()
-          toast.success('Đăng nhập thành công')
+          toast.success(t('signInSuccess'))
         } catch (error) {
           console.error(error)
-          toast.error('Đăng nhập không thành công')
+          toast.error(t('signInFailed'))
           throw error
         } finally {
           set({ loading: false })
@@ -68,10 +69,10 @@ export const useAuthStore = create<AuthState>()(
         try {
           get().clearState()
           await authService.signOut()
-          toast.success('Đăng xuất thành công')
+          toast.success(t('signOutSuccess'))
         } catch (error) {
           console.error(error)
-          toast.error('Lỗi khi đăng xuất. Hãy thử lại')
+          toast.error(t('signOutFailed'))
         }
       },
 
@@ -85,7 +86,7 @@ export const useAuthStore = create<AuthState>()(
         } catch (error) {
           console.error(error)
           set({ user: null, accessToken: null })
-          toast.error('Lỗi xảy ra khi lấy dữ liệu người dùng. Hãy thử lại')
+          toast.error(t('fetchUserFailed'))
         } finally {
           set({ loading: false })
         }
@@ -102,7 +103,7 @@ export const useAuthStore = create<AuthState>()(
           }
         } catch (error) {
           console.error(error)
-          toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại')
+          toast.error(t('sessionExpired'))
 
           get().clearState()
         } finally {

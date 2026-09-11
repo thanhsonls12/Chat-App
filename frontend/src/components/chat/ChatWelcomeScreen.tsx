@@ -1,7 +1,9 @@
 import { SidebarInset } from '../ui/sidebar'
 import ChatWindowHeader from './ChatWindowHeader'
+import { useI18n } from '@/i18n'
 
 export default function ChatWelcomeScreen() {
+  const { t } = useI18n()
   return (
     <SidebarInset className="flex w-full h-full bg-transparent">
       <ChatWindowHeader />
@@ -11,11 +13,10 @@ export default function ChatWelcomeScreen() {
             <span className="text-3xl">💬</span>
           </div>
           <h2 className="text-2xl font-bold mb-2 bg-gradient-chat bg-clip-text text-transparent">
-            Chào mừng bạn đến với Chat App
+            {t('welcome')}
           </h2>
           <p className="text-muted-foreground">
-            Bắt đầu một cuộc trò chuyện mới hoặc chọn một cuộc trò chuyện từ
-            danh sách bên dưới.
+            {t('welcomeHint')}
           </p>
         </div>
       </div>

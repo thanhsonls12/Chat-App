@@ -17,7 +17,7 @@ export default function SigninForm({
 }: React.ComponentProps<'div'>) {
   const { signIn } = useAuthStore()
   const navigate = useNavigate()
-  const { t, language } = useI18n()
+  const { t } = useI18n()
 
   const schema = useMemo(
     () =>
@@ -25,7 +25,7 @@ export default function SigninForm({
         username: z.string().min(3, t('usernameMin')),
         password: z.string().min(6, t('passwordMin')),
       }),
-    [t, language]
+    [t]
   )
   type Values = z.infer<typeof schema>
 

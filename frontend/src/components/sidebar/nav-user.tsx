@@ -22,11 +22,13 @@ import Logout from '../auth/Logout'
 import { useState } from 'react'
 import FriendRequestsDialog from '../friendRequest/FriendRequestsDialog'
 import ProfileDialog from '../profile/ProfileDialog'
+import { useI18n } from '@/i18n'
 
 export function NavUser({ user }: { user: User }) {
   const { isMobile } = useSidebar()
   const [friendRequestOpen, setFriendRequestOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
+  const { t } = useI18n()
   return (
     <>
       <SidebarMenu>
@@ -78,11 +80,11 @@ export function NavUser({ user }: { user: User }) {
               <DropdownMenuGroup>
                 <DropdownMenuItem onClick={() => setProfileOpen(true)}>
                   <UserIcon className="text-muted-foreground dark:group-focus:!text-accent-foreground" />
-                  Tài khoản
+                  {t('account')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setFriendRequestOpen(true)}>
                   <Bell className="text-muted-foreground dark:group-focus:!text-accent-foreground" />
-                  Thông báo
+                  {t('notifications')}
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />

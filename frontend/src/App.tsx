@@ -30,8 +30,6 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/signin" element={<SignInPage />} />
-
-          <Route path="/signin" element={<SignInPage />} />
           <Route path="/signup" element={<SignUpPage />} />
 
           <Route element={<ProtectedRoute />}>
