@@ -33,8 +33,6 @@ cloudinary.config({
   api_key: envConfig.CLOUDINARY_API_KEY,
   api_secret: envConfig.CLOUDINARY_API_SECRET
 })
-app.use('/api/auth', authRouter)
-
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 100,
@@ -43,6 +41,7 @@ const authLimiter = rateLimit({
   message: { message: COMMON_MESSAGES.TOO_MANY_REQUESTS }
 })
 app.use('/api/auth', authLimiter)
+app.use('/api/auth', authRouter)
 
 app.use('/api/users', protectedRoute, userRouter)
 
