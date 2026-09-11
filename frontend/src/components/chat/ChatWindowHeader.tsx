@@ -7,6 +7,7 @@ import UserAvatar from './UserAvatar'
 import StatusBadge from './StatusBadge'
 import GroupChatAvatar from './GroupChatAvatar'
 import GroupSettingsDialog from './GroupSettingsDialog'
+import CallButton from '../call/CallButton'
 import { useSocketStore } from '@/stores/useSocketStore'
 
 export default function ChatWindowHeader({ chat }: { chat?: Conversation }) {
@@ -65,6 +66,11 @@ export default function ChatWindowHeader({ chat }: { chat?: Conversation }) {
           {chat.type === 'group' && (
             <div className="ml-auto">
               <GroupSettingsDialog conversation={chat} />
+            </div>
+          )}
+          {chat.type === 'direct' && (
+            <div className="ml-auto">
+              <CallButton conversation={chat} />
             </div>
           )}
         </div>

@@ -11,6 +11,7 @@ import type {
 } from '@/types/socket.types.js'
 import { envConfig } from '@/config/env.js'
 import { getUserConversationsForSocketIO } from '@/controllers/conversationController.js'
+import { handleCallSocketDisconnect, registerCallHandlers } from './callHandlers.js'
 
 const app = express()
 
@@ -22,6 +23,7 @@ const io: AppServer = new Server<
   InterServerEvents,
   SocketData
 >(server, {
+  maxHttpBufferSize: 256 * 1024,
   cors: {
     origin: envConfig.CLIENT_URL,
     credentials: true
@@ -65,7 +67,6 @@ io.on('connection', async (socket) => {
     if (typeof conversationId !== 'string') return
     if (!socket.rooms.has(conversationId)) return
 
-    const userId = socket.data.user._id.toString()
     const now = Date.now()
 
     if (!isTyping) {
@@ -92,12 +93,15 @@ io.on('connection', async (socket) => {
     await socket.leave(conversationId)
   })
 
+  registerCallHandlers(io, socket, (id) => onlineUsers.has(id))
+
   socket.on('disconnect', () => {
     const remainingSockets = onlineUsers.get(userId)
     remainingSockets?.delete(socket.id)
     if (!remainingSockets?.size) {
       onlineUsers.delete(userId)
     }
+    handleCallSocketDisconnect(io, socket, (id) => onlineUsers.has(id))
     io.emit('onlineUsers', Array.from(onlineUsers.keys()))
     console.log(`socket disconnected: ${socket.id}`)
   })

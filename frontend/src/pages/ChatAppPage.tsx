@@ -2,6 +2,8 @@ import ChatWindowLayout from '@/components/chat/ChatWindowLayout'
 import { AppSidebar } from '@/components/sidebar/app-sidebar'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import IncomingCallDialog from '@/components/call/IncomingCallDialog'
+import VideoCallOverlay from '@/components/call/VideoCallOverlay'
 
 export default function ChatAppPage() {
   return (
@@ -12,6 +14,8 @@ export default function ChatAppPage() {
           <ChatWindowLayout />
         </div>
       </SidebarProvider>
+      <IncomingCallDialog />
+      <VideoCallOverlay />
     </TooltipProvider>
   )
 }

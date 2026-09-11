@@ -5,7 +5,6 @@ import type {
   AppSocket,
   CallAnswerPayload,
   CallIcePayload,
-  CallInvitePayload,
   CallOfferPayload,
   CallPayload,
   CallRejectPayload
@@ -167,7 +166,7 @@ export const registerCallHandlers = (
   const userId = user._id.toString()
   const inviteTimestamps: number[] = []
 
-  socket.on('call:invite', async (payload: CallInvitePayload) => {
+  socket.on('call:invite', async (payload: CallPayload) => {
     if (!isValidCallPayload(payload) || payload.callerId !== userId) return
 
     const now = Date.now()

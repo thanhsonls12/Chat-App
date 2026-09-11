@@ -43,6 +43,41 @@ export interface TypingPayload {
   isTyping: boolean
 }
 
+export interface CallPayload {
+  callId: string
+  conversationId: string
+  callerId: string
+  receiverId: string
+}
+
+export interface CallInvitePayload extends CallPayload {
+  caller: {
+    _id: string
+    displayName: string
+    avatarUrl?: string
+  }
+}
+
+export interface CallOfferPayload extends CallPayload {
+  sdp: unknown
+}
+
+export interface CallAnswerPayload extends CallPayload {
+  sdp: unknown
+}
+
+export interface CallIcePayload extends CallPayload {
+  candidate: unknown
+}
+
+export interface CallRejectPayload extends CallPayload {
+  reason?: string
+}
+
+export interface CallHandledPayload {
+  callId: string
+}
+
 export interface ServerToClientEvents {
   'new-group': (conversation: unknown) => void
   'group-updated': (conversation: unknown) => void
@@ -52,6 +87,16 @@ export interface ServerToClientEvents {
   'read-message': (payload: ReadMessagePayload) => void
   'user-typing': (payload: TypingPayload) => void
   onlineUsers: (userIds: string[]) => void
+  'call:invite': (payload: CallInvitePayload) => void
+  'call:accept': (payload: CallPayload) => void
+  'call:reject': (payload: CallRejectPayload) => void
+  'call:offer': (payload: CallOfferPayload) => void
+  'call:answer': (payload: CallAnswerPayload) => void
+  'call:ice-candidate': (payload: CallIcePayload) => void
+  'call:end': (payload: CallPayload) => void
+  'call:busy': (payload: CallPayload) => void
+  'call:unavailable': (payload: CallPayload) => void
+  'call:handled': (payload: CallHandledPayload) => void
 }
 
 export interface ClientToServerEvents {
@@ -59,6 +104,14 @@ export interface ClientToServerEvents {
   'leave-conversation': (conversationId: string) => void
   typing: (conversationId: string) => void
   'stop-typing': (conversationId: string) => void
+  'call:invite': (payload: CallPayload) => void
+  'call:accept': (payload: CallPayload) => void
+  'call:reject': (payload: CallRejectPayload) => void
+  'call:offer': (payload: CallOfferPayload) => void
+  'call:answer': (payload: CallAnswerPayload) => void
+  'call:ice-candidate': (payload: CallIcePayload) => void
+  'call:end': (payload: CallPayload) => void
+  'call:busy': (payload: CallPayload) => void
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
