@@ -36,15 +36,25 @@ export default function FriendRequestsDialog({
         <DialogHeader>
           <DialogTitle>{t('friendRequests')}</DialogTitle>
         </DialogHeader>
-        <Tabs value={tab} onValueChange={setTab} className="min-h-0 w-full">
+        <Tabs value={tab} onValueChange={setTab} className="min-h-0 w-full flex-col">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="received">{t('received')}</TabsTrigger>
-            <TabsTrigger value="sent">{t('sentTab')}</TabsTrigger>
+            <TabsTrigger
+              value="received"
+              className="focus-visible:ring-1 focus-visible:ring-ring/40 focus-visible:outline-none data-[state=active]:font-bold"
+            >
+              {t('received')}
+            </TabsTrigger>
+            <TabsTrigger
+              value="sent"
+              className="focus-visible:ring-1 focus-visible:ring-ring/40 focus-visible:outline-none data-[state=active]:font-bold"
+            >
+              {t('sentTab')}
+            </TabsTrigger>
           </TabsList>
-          <TabsContent value="received">
+          <TabsContent value="received" className="w-full flex-none">
             <ReceivedRequest />
           </TabsContent>
-          <TabsContent value="sent">
+          <TabsContent value="sent" className="w-full flex-none">
             <SentRequests />
           </TabsContent>
         </Tabs>
