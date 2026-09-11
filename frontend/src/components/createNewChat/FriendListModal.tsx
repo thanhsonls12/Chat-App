@@ -6,13 +6,20 @@ import UserAvatar from '../chat/UserAvatar'
 import { useChatStore } from '@/stores/useChatStore'
 import { useI18n } from '@/i18n'
 
-export default function FriendListModal() {
+type FriendListModalProps = {
+  onConversationCreated: () => void
+}
+
+export default function FriendListModal({
+  onConversationCreated,
+}: FriendListModalProps) {
   const { t } = useI18n()
   const { friends } = useFriendStore()
   const { createConversation } = useChatStore()
 
   const handleAddConversation = async (friendId: string) => {
     await createConversation('direct', '', [friendId])
+    onConversationCreated()
   }
   return (
     <DialogContent className="glass max-w-md">

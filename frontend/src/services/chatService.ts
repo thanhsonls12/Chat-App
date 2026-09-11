@@ -79,7 +79,11 @@ export const chatService = {
     name: string,
     memberIds: string[]
   ) {
-    const res = await api.post('/conversations', { type, name, memberIds })
+    const res = await api.post('/conversations', {
+      type,
+      ...(type === 'group' && { name }),
+      memberIds,
+    })
     return res.data.conversation
   },
 
