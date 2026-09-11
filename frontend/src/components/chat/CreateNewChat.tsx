@@ -3,8 +3,10 @@ import { Card } from '../ui/card'
 import { Dialog, DialogTrigger } from '../ui/dialog'
 import { MessageCircle } from 'lucide-react'
 import FriendListModal from '../createNewChat/FriendListModal'
+import { useI18n } from '@/i18n'
 
 export default function CreateNewChat() {
+  const { t } = useI18n()
   const { getFriends } = useFriendStore()
   const handleGetFriends = async () => {
     await getFriends()
@@ -22,7 +24,7 @@ export default function CreateNewChat() {
                 <MessageCircle className="size-4 text-white" />
               </div>
               <span className="text-sm font-medium capitalize">
-                Gửi tin nhắn mới
+                {t('newMessage')}
               </span>
             </div>
           </DialogTrigger>

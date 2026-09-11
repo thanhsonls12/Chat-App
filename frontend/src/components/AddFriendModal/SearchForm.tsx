@@ -5,6 +5,7 @@ import { Input } from '../ui/input'
 import { DialogClose, DialogFooter } from '../ui/dialog'
 import { Button } from '../ui/button'
 import { Search } from 'lucide-react'
+import { useI18n } from '@/i18n'
 
 interface SearchFormProps {
   register: UseFormRegister<IFormValues>
@@ -27,25 +28,26 @@ export default function SearchForm({
   searchedUsername,
   usernameValue,
 }: SearchFormProps) {
+  const { t } = useI18n()
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="username" className="text-sm font-semibold">
-          Tìm bằng username
+          {t('searchByUsername')}
         </Label>
         <Input
           id="username"
-          placeholder="Gõ username để tìm kiếm..."
+          placeholder={t('searchUsernamePlaceholder')}
           className="glass border-border/50 focus:border-primary/50 transition-smooth"
           {...register('username', {
-            required: 'Username không được bỏ trống',
+            required: t('usernameRequired'),
             minLength: {
               value: 3,
-              message: 'Username phải có ít nhất 3 ký tự',
+              message: t('usernameMin'),
             },
             maxLength: {
               value: 50,
-              message: 'Username chỉ được tối đa 50 ký tự',
+              message: t('usernameMax'),
             },
           })}
         />
@@ -54,7 +56,7 @@ export default function SearchForm({
         )}
         {isFound === false && (
           <span className="error-message">
-            Không tìm thấy
+            {t('notFound')}
             <span className="font-semibold"> @{searchedUsername}</span>
           </span>
         )}
@@ -67,7 +69,7 @@ export default function SearchForm({
             className="flex-1 glass hover:text-destructive"
             onClick={onCancel}
           >
-            Cancel
+            {t('cancel')}
           </Button>
         </DialogClose>
         <Button
@@ -76,11 +78,11 @@ export default function SearchForm({
           className="flex-1 bg-gradient-chat text-white hover:opacity-90 transition-smooth"
         >
           {loading ? (
-            <span>Đang Tìm...</span>
+            <span>{t('searching')}</span>
           ) : (
             <>
               <Search className="size-4 mr-2" />
-              Tìm kiếm
+              {t('search')}
             </>
           )}
         </Button>

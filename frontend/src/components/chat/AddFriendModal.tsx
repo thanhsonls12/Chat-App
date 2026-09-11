@@ -14,6 +14,7 @@ import { toast } from 'sonner'
 import SearchForm from '../addFriendModal/SearchForm'
 import SendFriendRequestForm from '../addFriendModal/SendFriendRequestForm'
 import { SidebarGroupAction } from '../ui/sidebar'
+import { useI18n } from '@/i18n'
 
 export interface IFormValues {
   username: string
@@ -21,6 +22,7 @@ export interface IFormValues {
 }
 
 export default function AddFriendModal() {
+  const { t } = useI18n()
   const [open, setOpen] = useState(false)
   const [isFound, setIsFound] = useState<boolean | null>(null)
   const [searchUser, setSearchUser] = useState<User>()
@@ -86,14 +88,14 @@ export default function AddFriendModal() {
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <SidebarGroupAction title="Kết bạn" className="cursor-pointer">
+        <SidebarGroupAction title={t('addFriend')} className="cursor-pointer">
           <UserPlus className="size-4" />
-          <span className="sr-only">Kết Bạn</span>
+          <span className="sr-only">{t('addFriend')}</span>
         </SidebarGroupAction>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] border-none">
         <DialogHeader>
-          <DialogTitle>Kết Bạn</DialogTitle>
+          <DialogTitle>{t('addFriend')}</DialogTitle>
         </DialogHeader>
         {!isFound && (
           <>

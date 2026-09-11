@@ -4,8 +4,10 @@ import { MessageCircleMore, User } from 'lucide-react'
 import { Card } from '../ui/card'
 import UserAvatar from '../chat/UserAvatar'
 import { useChatStore } from '@/stores/useChatStore'
+import { useI18n } from '@/i18n'
 
 export default function FriendListModal() {
+  const { t } = useI18n()
   const { friends } = useFriendStore()
   const { createConversation } = useChatStore()
 
@@ -17,12 +19,12 @@ export default function FriendListModal() {
       <DialogHeader>
         <DialogTitle className="flex items-center gap-2 text-xl capitalize">
           <MessageCircleMore className="size-5" />
-          Bắt đầu hội thoại mới
+          {t('newConversation')}
         </DialogTitle>
       </DialogHeader>
       <div className="space-y-4">
         <h1 className="text-sm font-semibold text-muted-foreground mb-3 uppercase tracking-wide">
-          danh sách bạn bè
+          {t('friendList')}
         </h1>
         <div className="space-y-2 max-h-60 overflow-y-auto">
           {friends.map((friend) => (
@@ -53,7 +55,7 @@ export default function FriendListModal() {
           {friends.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">
               <User className="size-12 mx-auto mb-3 opacity-50" />
-              Chưa có bạn bè, hãy bắt đầu kết bạn!
+              {t('noFriends')}
             </div>
           )}
         </div>

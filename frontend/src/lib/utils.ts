@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
+import { t } from '@/i18n'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -52,7 +53,7 @@ export const formatMessageTime = (date: Date) => {
   if (isToday) {
     return timeStr
   } else if (isYesterday) {
-    return `Hôm qua ${timeStr}`
+    return `${t('yesterday')} ${timeStr}`
   } else if (date.getFullYear() === now.getFullYear()) {
     return `${date.getDate()}/${date.getMonth() + 1} ${timeStr}`
   } else {

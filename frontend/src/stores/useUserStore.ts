@@ -4,6 +4,7 @@ import { create } from 'zustand'
 import { useAuthStore } from './useAuthStore'
 import { toast } from 'sonner'
 import axios from 'axios'
+import { t } from '@/i18n'
 
 interface ApiErrorResponse {
   message?: string
@@ -23,9 +24,9 @@ export const useUserStore = create<UserState>((set) => ({
       set({ updatingProfile: true })
       const updatedUser = await userService.updateProfile(input)
       useAuthStore.getState().setUser(updatedUser)
-      toast.success('Cập nhật thông tin thành công')
+      toast.success(t('profileUpdated'))
     } catch (error) {
-      toast.error(getErrorMessage(error, 'Không thể cập nhật thông tin'))
+      toast.error(getErrorMessage(error, t('profileUpdateFailed')))
       throw error
     } finally {
       set({ updatingProfile: false })
@@ -35,9 +36,9 @@ export const useUserStore = create<UserState>((set) => ({
     try {
       set({ changingPassword: true })
       await userService.changePassword(input)
-      toast.success('Đổi mật khẩu thành công')
+      toast.success(t('passwordChanged'))
     } catch (error) {
-      toast.error(getErrorMessage(error, 'Không thể đổi mật khẩu'))
+      toast.error(getErrorMessage(error, t('passwordChangeFailed')))
       throw error
     } finally {
       set({ changingPassword: false })
@@ -54,10 +55,10 @@ export const useUserStore = create<UserState>((set) => ({
           avatarUrl: updatedUser.avatarUrl,
         })
       }
-      toast.success('Cập nhật ảnh đại diện thành công')
+      toast.success(t('avatarUpdated'))
     } catch (error) {
       console.error(error)
-      toast.error(getErrorMessage(error, 'Lỗi khi tải ảnh đại diện'))
+      toast.error(getErrorMessage(error, t('avatarUpdateFailed')))
     } finally {
       set({ uploadingAvatar: false })
     }

@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { LoaderCircle, Save } from 'lucide-react'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -19,30 +19,32 @@ import AvatarUploader from './AvatarUploader'
 import PasswordChangeForm from './PasswordChangeForm'
 import { useI18n } from '@/i18n'
 
-const profileSchema = z.object({
-  displayName: z
-    .string()
-    .trim()
-    .min(1, 'Tên hiển thị không được để trống')
-    .max(100, 'Tên hiển thị tối đa 100 ký tự'),
-  bio: z.string().trim().max(500, 'Giới thiệu tối đa 500 ký tự'),
-  phone: z
-    .string()
-    .trim()
-    .refine(
-      (value) => !value || /^\+?[0-9\s().-]{7,20}$/.test(value),
-      'Số điện thoại không hợp lệ'
-    ),
-})
-
-type ProfileFormValues = z.infer<typeof profileSchema>
-
 interface ProfileCardProps {
   user: User
 }
 
 export default function ProfileCard({ user }: ProfileCardProps) {
   const { t } = useI18n()
+  const profileSchema = useMemo(
+    () =>
+      z.object({
+        displayName: z
+          .string()
+          .trim()
+          .min(1, t('displayNameRequired'))
+          .max(100, t('displayNameMax')),
+        bio: z.string().trim().max(500, t('bioMax')),
+        phone: z
+          .string()
+          .trim()
+          .refine(
+            (value) => !value || /^\+?[0-9\s().-]{7,20}$/.test(value),
+            t('phoneInvalid')
+          ),
+      }),
+    [t]
+  )
+  type ProfileFormValues = z.infer<typeof profileSchema>
   const onlineUsers = useSocketStore((state) => state.onlineUsers)
   const { updateProfile, updatingProfile } = useUserStore()
   const isOnline = onlineUsers.includes(user._id)
@@ -142,7 +144,7 @@ export default function ProfileCard({ user }: ProfileCardProps) {
               id="profile-phone"
               type="tel"
               maxLength={20}
-              placeholder="Ví dụ: +84 912 345 678"
+              placeholder="+84 912 345 678"
               aria-invalid={Boolean(errors.phone)}
               {...register('phone')}
             />

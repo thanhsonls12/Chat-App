@@ -3,10 +3,12 @@ import { useRef } from 'react'
 import { Button } from '../ui/button'
 import { Camera, LoaderCircle } from 'lucide-react'
 import { toast } from 'sonner'
+import { useI18n } from '@/i18n'
 
 const MAX_AVATAR_SIZE = 5 * 1024 * 1024
 
 export default function AvatarUploader() {
+  const { t } = useI18n()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { updateAvatarUrl, uploadingAvatar } = useUserStore()
   const handleClick = () => {
@@ -16,12 +18,12 @@ export default function AvatarUploader() {
     const file = e.target.files?.[0]
     if (!file) return
     if (!file.type.startsWith('image/')) {
-      toast.error('Vui lòng chọn một tệp ảnh')
+      toast.error(t('chooseAvatarImage'))
       e.target.value = ''
       return
     }
     if (file.size > MAX_AVATAR_SIZE) {
-      toast.error('Ảnh đại diện không được vượt quá 5 MB')
+      toast.error(t('avatarTooLarge'))
       e.target.value = ''
       return
     }
@@ -42,7 +44,7 @@ export default function AvatarUploader() {
         variant="secondary"
         onClick={handleClick}
         disabled={uploadingAvatar}
-        aria-label="Đổi ảnh đại diện"
+        aria-label={t('changeAvatar')}
         className="absolute -bottom-2 -right-2 size-9 rounded-full shadow-md hover:scale-115 transition duration-300 hover:bg-background"
       >
         {uploadingAvatar ? (

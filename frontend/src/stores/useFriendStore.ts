@@ -3,6 +3,7 @@ import type { FriendState } from '@/types/store'
 import axios from 'axios'
 import { toast } from 'sonner'
 import { create } from 'zustand'
+import { t } from '@/i18n'
 
 interface ApiErrorResponse {
   message?: string
@@ -34,7 +35,7 @@ export const useFriendStore = create<FriendState>((set) => ({
       if (axios.isAxiosError(error) && error.response?.status === 404) {
         return null
       }
-      toast.error(getErrorMessage(error, 'Không thể tìm kiếm người dùng'))
+      toast.error(getErrorMessage(error, t('userSearchFailed')))
       throw error
     } finally {
       set({
@@ -49,7 +50,7 @@ export const useFriendStore = create<FriendState>((set) => ({
       return resultMessage
     } catch (error) {
       console.error(error)
-      toast.error(getErrorMessage(error, 'Không thể gửi lời mời kết bạn'))
+      toast.error(getErrorMessage(error, t('friendRequestFailed')))
       throw error
     } finally {
       set({
@@ -68,7 +69,7 @@ export const useFriendStore = create<FriendState>((set) => ({
     } catch (error) {
       console.error(error)
       toast.error(
-        getErrorMessage(error, 'Không thể tải danh sách lời mời kết bạn')
+        getErrorMessage(error, t('friendRequestsLoadFailed'))
       )
       throw error
     } finally {
@@ -86,7 +87,7 @@ export const useFriendStore = create<FriendState>((set) => ({
       }))
     } catch (error) {
       console.error(error)
-      toast.error(getErrorMessage(error, 'Không thể chấp nhận lời mời kết bạn'))
+      toast.error(getErrorMessage(error, t('friendAcceptFailed')))
       throw error
     } finally {
       set({
@@ -103,7 +104,7 @@ export const useFriendStore = create<FriendState>((set) => ({
       }))
     } catch (error) {
       console.error(error)
-      toast.error(getErrorMessage(error, 'Không thể từ chối lời mời kết bạn'))
+      toast.error(getErrorMessage(error, t('friendDeclineFailed')))
       throw error
     } finally {
       set({

@@ -5,6 +5,7 @@ import { Label } from '../ui/label'
 import { Textarea } from '../ui/textarea'
 import type { FieldErrors, UseFormRegister } from 'react-hook-form'
 import type { IFormValues } from '../chat/AddFriendModal'
+import { useI18n } from '@/i18n'
 
 interface SendRequestProps {
   register: UseFormRegister<IFormValues>
@@ -23,25 +24,26 @@ export default function SendFriendRequestForm({
   searchedUsername,
   onSubmit,
 }: SendRequestProps) {
+  const { t } = useI18n()
   return (
     <form onSubmit={onSubmit}>
       <div className="space-y-4">
         <span className="success-message">
-          Tìm Thấy <span className="font-semibold">@{searchedUsername}</span>
+          {t('found')} <span className="font-semibold">@{searchedUsername}</span>
         </span>
         <div className="space-y-4">
           <Label htmlFor="message" className="text-sm font-semibold">
-            Giới Thiệu
+            {t('introduction')}
           </Label>
           <Textarea
             id="message"
             rows={3}
-            placeholder="Chào bạn, có thể kết bạn được không!"
+            placeholder={t('friendMessagePlaceholder')}
             className="glass border-border/50 focus:border-primary/50 transition-smooth resize-none"
             {...register('message', {
               maxLength: {
                 value: 300,
-                message: 'Lời giới thiệu chỉ được tối đa 300 ký tự',
+                message: t('introductionMax'),
               },
             })}
           />
@@ -56,7 +58,7 @@ export default function SendFriendRequestForm({
             className="flex-1 glass hover:text-destructive"
             onClick={onBack}
           >
-            Quay Lại
+            {t('back')}
           </Button>
           <Button
             type="submit"
@@ -64,10 +66,10 @@ export default function SendFriendRequestForm({
             className="flex-1 bg-gradient-chat text-white hover:opacity-90 transition-smooth"
           >
             {loading ? (
-              <span>Đang Gửi...</span>
+              <span>{t('sending')}</span>
             ) : (
               <>
-                <UserPlus className="size-4 mr-2" /> Kết Bạn
+                <UserPlus className="size-4 mr-2" /> {t('addFriend')}
               </>
             )}
           </Button>
