@@ -193,8 +193,7 @@ export const useChatStore = create<ChatState>()(
                 { ...message, isOwn: true }
               ),
               hasMore: state.messages[message.conversationId]?.hasMore ?? false,
-              nextCursor:
-                state.messages[message.conversationId]?.nextCursor ?? null,
+              nextCursor: state.messages[message.conversationId]?.nextCursor,
             },
           },
           conversations: state.conversations.map((c) =>
@@ -245,8 +244,7 @@ export const useChatStore = create<ChatState>()(
                 { ...message, isOwn: true }
               ),
               hasMore: state.messages[message.conversationId]?.hasMore ?? false,
-              nextCursor:
-                state.messages[message.conversationId]?.nextCursor ?? null,
+              nextCursor: state.messages[message.conversationId]?.nextCursor,
             },
           },
           conversations: state.conversations.map((c) =>
@@ -284,7 +282,7 @@ export const useChatStore = create<ChatState>()(
                   { ...message, isOwn: message.senderId === user?._id },
                 ],
                 hasMore: current?.hasMore ?? true,
-                nextCursor: current?.nextCursor ?? null,
+                nextCursor: current?.nextCursor,
               },
             },
           }
