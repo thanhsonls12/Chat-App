@@ -71,6 +71,9 @@ const conversationSchema = new mongoose.Schema(
       enum: ['direct', 'group'],
       required: true
     },
+    directKey: {
+      type: String
+    },
     participants: {
       type: [participantSchema],
       required: true
@@ -106,6 +109,13 @@ conversationSchema.index({
   'participants.userId': 1,
   lastMessageAt: -1
 })
+conversationSchema.index(
+  { directKey: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { type: 'direct', directKey: { $type: 'string' } }
+  }
+)
 
 export type IConversation = mongoose.InferSchemaType<typeof conversationSchema>
 

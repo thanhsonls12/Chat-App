@@ -21,6 +21,7 @@ import type {
   RemoveMemberParams,
   UpdateGroupBody
 } from '@/types/conversation.types.js'
+import { findOrCreateDirectConversation } from '@/utils/directConversation.js'
 
 type PopulatedParticipant = {
   userId: {
@@ -124,6 +125,12 @@ export const createConversation = async (
   let conversation
   if (type === 'direct') {
     const participantId = memberIds[0]
+    if (!participantId) {
+      throw new AppError(
+        CONVERSATION_MESSAGES.DIRECT_CONVERSATION_REQUIRES_ONE_MEMBER,
+        HTTP_STATUS.BAD_REQUEST
+      )
+    }
     if (participantId === userId.toString()) {
       throw new AppError(MESSAGE_MESSAGES.CANNOT_MESSAGE_YOURSELF, HTTP_STATUS.BAD_REQUEST)
     }
@@ -131,27 +138,7 @@ export const createConversation = async (
     if (!userExists) {
       throw new AppError(USER_MESSAGES.USER_NOT_FOUND, HTTP_STATUS.NOT_FOUND)
     }
-    conversation = await Conversation.findOne({
-      type: 'direct',
-      'participants.userId': {
-        $all: [userId, participantId]
-      }
-    })
-
-    if (!conversation) {
-      conversation = new Conversation({
-        type: 'direct',
-        participants: [
-          {
-            userId
-          },
-          {
-            userId: participantId
-          }
-        ]
-      })
-      await conversation.save()
-    }
+    conversation = await findOrCreateDirectConversation(userId, participantId)
   }
 
   if (type === 'group') {

@@ -20,6 +20,7 @@ import type {
   SendGroupMessageBody
 } from '@/types/message.types.js'
 import { io } from '../socket/index.js'
+import { findOrCreateDirectConversation } from '@/utils/directConversation.js'
 
 interface CreatedMessageResult {
   conversation: ConversationDocument
@@ -110,6 +111,10 @@ export const sendDirectMessage = async (
 
   const imgUrl = req.file ? await uploadMessageImage(req.file) : undefined
 
+  const directConversation = conversationId
+    ? null
+    : await findOrCreateDirectConversation(senderId, recipientId!)
+
   const result = await mongoose.connection.transaction(
     async (session): Promise<CreatedMessageResult> => {
       let conversation: ConversationDocument | null
@@ -128,26 +133,9 @@ export const sendDirectMessage = async (
           )
         }
       } else {
-        if (!recipientId) {
-          throw new AppError(MESSAGE_MESSAGES.RECIPIENT_ID_REQUIRED, HTTP_STATUS.BAD_REQUEST)
-        }
-
-        const recipient = await User.findById(recipientId).session(session)
-        if (!recipient) {
-          throw new AppError(USER_MESSAGES.USER_NOT_FOUND, HTTP_STATUS.NOT_FOUND)
-        }
-
-        conversation = await Conversation.findOne({
-          type: 'direct',
-          'participants.userId': { $all: [senderId, recipientId] }
-        }).session(session)
-
+        conversation = await Conversation.findById(directConversation!._id).session(session)
         if (!conversation) {
-          conversation = new Conversation({
-            type: 'direct',
-            participants: [{ userId: senderId }, { userId: recipientId }]
-          })
-          await conversation.save({ session })
+          throw new AppError(CONVERSATION_MESSAGES.CONVERSATION_NOT_FOUND, HTTP_STATUS.NOT_FOUND)
         }
       }
 
