@@ -10,6 +10,7 @@ import { useAuthStore } from '@/stores/useAuthStore'
 import { useNavigate } from 'react-router'
 import { useI18n } from '@/i18n'
 import { useMemo } from 'react'
+import { LoaderCircle } from 'lucide-react'
 
 export default function SigninForm({
   className,
@@ -74,7 +75,8 @@ export default function SigninForm({
                 )}
               </div>
               <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {t('signIn')}
+                {isSubmitting && <LoaderCircle className="animate-spin" />}
+                {isSubmitting ? t('signingIn') : t('signIn')}
               </Button>
               <div className="text-center text-sm">
                 {t('noAccount')}{' '}
@@ -84,13 +86,13 @@ export default function SigninForm({
               </div>
               <div className="text-balance px-2 text-center text-sm text-muted-foreground">
                 {t('continueNotice')}{' '}
-                <a href="#" className="underline">
+                <span className="font-medium">
                   {t('terms')}
-                </a>{' '}
+                </span>{' '}
                 {t('and')}{' '}
-                <a href="#" className="underline">
+                <span className="font-medium">
                   {t('privacy')}
-                </a>
+                </span>
                 .
               </div>
             </div>

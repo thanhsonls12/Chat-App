@@ -147,6 +147,8 @@ const messages = {
     disableCamera: 'Tắt camera',
     enableCamera: 'Bật camera',
     endCallAction: 'Kết thúc cuộc gọi',
+    signingIn: 'Đang đăng nhập...',
+    signingUp: 'Đang tạo tài khoản...',
   },
   en: {
     language: 'Language',
@@ -291,6 +293,8 @@ const messages = {
     disableCamera: 'Turn camera off',
     enableCamera: 'Turn camera on',
     endCallAction: 'End call',
+    signingIn: 'Signing in...',
+    signingUp: 'Creating account...',
   },
 } as const
 

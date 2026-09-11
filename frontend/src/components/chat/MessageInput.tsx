@@ -209,6 +209,7 @@ export default function MessageInput({
           className="bg-gradient-chat hover:shadow-glow transition-smooth hover:scale-105"
           disabled={!canSend}
           onClick={sendMessage}
+          aria-label={t('sendMessage')}
         >
           {sending ? (
             <Loader2 className="size-4 text-white animate-spin" />

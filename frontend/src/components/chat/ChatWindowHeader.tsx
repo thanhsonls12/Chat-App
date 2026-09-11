@@ -36,8 +36,8 @@ export default function ChatWindowHeader({ chat }: { chat?: Conversation }) {
           orientation="vertical"
           className="mr-2 data-[orientation=vertical]:h-4"
         />
-        <div className="p-2 w-full flex items-center gap-3">
-          <div className="relative">
+        <div className="flex min-w-0 w-full items-center gap-3 p-2">
+          <div className="relative shrink-0">
             {chat.type === 'direct' ? (
               <>
                 <UserAvatar
@@ -60,16 +60,16 @@ export default function ChatWindowHeader({ chat }: { chat?: Conversation }) {
               />
             )}
           </div>
-          <h2 className="font-semibold text-foreground">
+          <h2 className="min-w-0 truncate font-semibold text-foreground">
             {chat.type === 'direct' ? otherUser?.displayName : chat.group.name}
           </h2>
           {chat.type === 'group' && (
-            <div className="ml-auto">
+            <div className="ml-auto shrink-0">
               <GroupSettingsDialog conversation={chat} />
             </div>
           )}
           {chat.type === 'direct' && (
-            <div className="ml-auto">
+            <div className="ml-auto shrink-0">
               <CallButton conversation={chat} />
             </div>
           )}

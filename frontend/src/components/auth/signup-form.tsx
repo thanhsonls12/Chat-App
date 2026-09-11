@@ -10,6 +10,7 @@ import { useAuthStore } from '@/stores/useAuthStore'
 import { useNavigate } from 'react-router'
 import { useI18n } from '@/i18n'
 import { useMemo } from 'react'
+import { LoaderCircle } from 'lucide-react'
 
 export function SignupForm({
   className,
@@ -91,7 +92,7 @@ export function SignupForm({
                   </Label>
                   <Input type="text" id="username" {...register('username')} />
                   {errors.username && (
-                    <p className="">{errors.username.message}</p>
+                    <p className="error-message">{errors.username.message}</p>
                   )}
                 </div>
               </div>
@@ -127,7 +128,8 @@ export function SignupForm({
                 </div>
               </div>
               <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {t('createAccount')}
+                {isSubmitting && <LoaderCircle className="animate-spin" />}
+                {isSubmitting ? t('signingUp') : t('createAccount')}
               </Button>
               <div className="text-center text-sm ">
                 {t('haveAccount')}{' '}
@@ -140,8 +142,8 @@ export function SignupForm({
               </div>
               <div className="text-balance px-2 text-center text-sm text-muted-foreground *:[a]:underline *:[a]:underline-offset-4 *:[a]:hover:text-primary">
                 {t('continueNotice')}{' '}
-                <a href="#">{t('terms')}</a> {t('and')}{' '}
-                <a href="#">{t('privacy')}</a> {t('ourSuffix')}
+                <span className="font-medium">{t('terms')}</span> {t('and')}{' '}
+                <span className="font-medium">{t('privacy')}</span> {t('ourSuffix')}
               </div>
             </div>
           </form>
