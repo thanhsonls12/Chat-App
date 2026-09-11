@@ -21,6 +21,7 @@ export default function ReceivedRequest() {
       toast.success(t('friendAccepted'))
     } catch (error) {
       console.error(error)
+      toast.error(t('friendAcceptFailed'))
     }
   }
 
@@ -30,10 +31,11 @@ export default function ReceivedRequest() {
       toast.info(t('friendDeclined'))
     } catch (error) {
       console.error(error)
+      toast.error(t('friendDeclineFailed'))
     }
   }
   return (
-    <div className="space-y-3 mt-4">
+    <div className="mt-4 max-h-[55dvh] space-y-3 overflow-y-auto pr-1">
       {receivedList.map((req) => (
         <FriendRequestItem
           key={req._id}

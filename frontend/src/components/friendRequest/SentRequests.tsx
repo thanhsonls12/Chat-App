@@ -13,7 +13,7 @@ export default function SentRequests() {
     )
   }
   return (
-    <div className="space-y-3 mt-4">
+    <div className="mt-4 max-h-[55dvh] space-y-3 overflow-y-auto pr-1">
       {sentList.map((req) => (
         <FriendRequestItem
           key={req._id}

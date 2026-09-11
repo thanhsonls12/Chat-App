@@ -16,19 +16,21 @@ export default function FriendRequestItem({
   if (!info) return
 
   return (
-    <div className="flex items-center justify-between rounded-lg shadow-md border border-primary-foreground p-3">
-      <div className="flex items-center gap-3">
+    <div className="flex flex-col gap-3 rounded-lg border border-border bg-card p-3 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex min-w-0 items-center gap-3">
         <UserAvatar
           type="sidebar"
           name={info.displayName}
           avatarUrl={info.avatarUrl}
         />
-        <div>
-          <p className="font-medium">{info.displayName}</p>
-          <p className="text-sm text-muted-foreground">@{info.username}</p>
+        <div className="min-w-0">
+          <p className="truncate font-medium">{info.displayName}</p>
+          <p className="truncate text-sm text-muted-foreground">
+            @{info.username}
+          </p>
         </div>
       </div>
-      {actions}
+      <div className="shrink-0 self-end sm:self-auto">{actions}</div>
     </div>
   )
 }

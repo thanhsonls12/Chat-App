@@ -32,11 +32,11 @@ export default function FriendRequestsDialog({
   }, [getAllFriendRequests, open])
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="max-h-[85dvh] overflow-hidden sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{t('friendRequests')}</DialogTitle>
         </DialogHeader>
-        <Tabs value={tab} onValueChange={setTab} className="w-full ">
+        <Tabs value={tab} onValueChange={setTab} className="min-h-0 w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="received">{t('received')}</TabsTrigger>
             <TabsTrigger value="sent">{t('sentTab')}</TabsTrigger>
