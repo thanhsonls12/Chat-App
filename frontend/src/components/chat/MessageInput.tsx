@@ -1,6 +1,6 @@
 import { useAuthStore } from '@/stores/useAuthStore'
 import type { Conversation } from '@/types/chat'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '../ui/button'
 import { ImagePlus, Loader2, Send, X } from 'lucide-react'
 import { Input } from '../ui/input'
@@ -52,22 +52,22 @@ export default function MessageInput({
 
   const conversationId = selectedConvo._id
 
-  const clearTypingTimers = () => {
+  const clearTypingTimers = useCallback(() => {
     if (idleTimerRef.current) clearTimeout(idleTimerRef.current)
     if (heartbeatTimerRef.current) clearTimeout(heartbeatTimerRef.current)
     idleTimerRef.current = null
     heartbeatTimerRef.current = null
-  }
+  }, [])
 
-  const stopTyping = () => {
+  const stopTyping = useCallback(() => {
     clearTypingTimers()
     if (isTypingRef.current) {
       isTypingRef.current = false
       emitTyping(conversationId, false)
     }
-  }
+  }, [clearTypingTimers, conversationId, emitTyping])
 
-  const signalTyping = () => {
+  const signalTyping = useCallback(() => {
     if (!isTypingRef.current) {
       isTypingRef.current = true
       emitTyping(conversationId, true)
@@ -80,9 +80,9 @@ export default function MessageInput({
     }
     if (idleTimerRef.current) clearTimeout(idleTimerRef.current)
     idleTimerRef.current = setTimeout(stopTyping, TYPING_IDLE_MS)
-  }
+  }, [conversationId, emitTyping, stopTyping])
 
-  useEffect(() => stopTyping, [conversationId])
+  useEffect(() => stopTyping, [stopTyping])
 
   if (!user) return
   const canSend = !sending && (value.trim() !== '' || image !== null)
