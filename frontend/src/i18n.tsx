@@ -141,6 +141,7 @@ const messages = {
     leaveGroup: 'Rời nhóm',
     confirmLeaveGroup: 'Xác nhận rời nhóm',
     cancel: 'Huỷ',
+    toggleTheme: 'Chuyển giao diện sáng/tối',
   },
   en: {
     language: 'Language',
@@ -279,6 +280,7 @@ const messages = {
     leaveGroup: 'Leave group',
     confirmLeaveGroup: 'Confirm leaving group',
     cancel: 'Cancel',
+    toggleTheme: 'Toggle light/dark theme',
   },
 } as const
 

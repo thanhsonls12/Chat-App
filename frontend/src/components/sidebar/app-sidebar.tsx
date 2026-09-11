@@ -41,7 +41,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="bg-gradient-primary"
             >
-              <a href="#">
+              <div>
                 <div className="flex w-full items-center px-2 justify-between">
                   <h1 className="text-xl font-bold text-white">Chat-App</h1>
                   <div className="flex items-center gap-2 justify-between">
@@ -50,12 +50,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     <Switch
                       checked={isDark}
                       onCheckedChange={toggleTheme}
+                      aria-label={t('toggleTheme')}
                       className="data-[state=checked]:bg-background/80"
                     />
                     <Moon className="size-4 text-white/80" />
                   </div>
                 </div>
-              </a>
+              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
