@@ -107,7 +107,7 @@ export default function MessageItem({
             <Button
               variant="ghost"
               size="icon"
-              className="size-7 self-center opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+              className="size-7 self-center opacity-100 transition-opacity duration-150 ease-linear focus-visible:opacity-100 motion-reduce:transition-none [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100"
               aria-label="Tùy chọn tin nhắn"
             >
               <MoreHorizontal className="size-4" />
