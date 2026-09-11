@@ -142,6 +142,11 @@ const messages = {
     confirmLeaveGroup: 'Xác nhận rời nhóm',
     cancel: 'Huỷ',
     toggleTheme: 'Chuyển giao diện sáng/tối',
+    muteMicrophone: 'Tắt micro',
+    unmuteMicrophone: 'Bật micro',
+    disableCamera: 'Tắt camera',
+    enableCamera: 'Bật camera',
+    endCallAction: 'Kết thúc cuộc gọi',
   },
   en: {
     language: 'Language',
@@ -281,6 +286,11 @@ const messages = {
     confirmLeaveGroup: 'Confirm leaving group',
     cancel: 'Cancel',
     toggleTheme: 'Toggle light/dark theme',
+    muteMicrophone: 'Mute microphone',
+    unmuteMicrophone: 'Unmute microphone',
+    disableCamera: 'Turn camera off',
+    enableCamera: 'Turn camera on',
+    endCallAction: 'End call',
   },
 } as const
 

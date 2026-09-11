@@ -101,6 +101,7 @@ export default function VideoCallOverlay() {
   if (!visible || !peer) return null
 
   const hasRemote = status === 'connected' && !!remoteStream
+  const hasVideoTrack = (localStream?.getVideoTracks().length ?? 0) > 0
   const showControls =
     status === 'preparing' ||
     status === 'outgoing' ||
@@ -142,7 +143,7 @@ export default function VideoCallOverlay() {
       </div>
 
       {localStream && (
-        <div className="absolute right-4 top-4 z-20 h-40 w-28 overflow-hidden rounded-xl border border-white/20 bg-black shadow-lg sm:h-48 sm:w-36">
+        <div className="absolute right-3 top-3 z-20 h-32 w-24 overflow-hidden rounded-xl border border-white/20 bg-black shadow-lg sm:right-4 sm:top-4 sm:h-48 sm:w-36">
           <StreamVideo
             stream={localStream}
             muted
@@ -161,13 +162,14 @@ export default function VideoCallOverlay() {
       )}
 
       {showControls && (
-        <div className="relative z-10 mt-auto flex items-center justify-center gap-6 p-8">
+        <div className="relative z-10 mt-auto flex items-center justify-center gap-5 px-4 pb-[max(2rem,env(safe-area-inset-bottom))] pt-8 sm:gap-6 sm:px-8">
           <Button
             size="icon"
             variant={micEnabled ? 'secondary' : 'destructive'}
             className="size-14 rounded-full transition-transform duration-150 active:scale-95 motion-reduce:transition-none"
             onClick={toggleMic}
             disabled={!localStream}
+            aria-label={micEnabled ? t('muteMicrophone') : t('unmuteMicrophone')}
           >
             {micEnabled ? (
               <Mic className="size-6" />
@@ -180,6 +182,7 @@ export default function VideoCallOverlay() {
             variant="destructive"
             className="size-16 rounded-full bg-red-600 text-white transition-transform duration-150 hover:bg-red-700 active:scale-95 motion-reduce:transition-none"
             onClick={endCall}
+            aria-label={t('endCallAction')}
           >
             <PhoneOff className="size-7" />
           </Button>
@@ -188,7 +191,8 @@ export default function VideoCallOverlay() {
             variant={camEnabled ? 'secondary' : 'destructive'}
             className="size-14 rounded-full transition-transform duration-150 active:scale-95 motion-reduce:transition-none"
             onClick={toggleCam}
-            disabled={!localStream}
+            disabled={!hasVideoTrack}
+            aria-label={camEnabled ? t('disableCamera') : t('enableCamera')}
           >
             {camEnabled ? (
               <VideoIcon className="size-6" />
