@@ -1,6 +1,17 @@
 import type { Socket } from 'socket.io-client'
 import type { Conversation, Message, TypingUser } from './chat'
 import type {
+  CallHandledPayload,
+  CallInvitePayload,
+  CallIcePayload,
+  CallOfferPayload,
+  CallAnswerPayload,
+  CallPayload,
+  CallPeer,
+  CallRejectPayload,
+  CallStatus,
+} from './call'
+import type {
   ChangePasswordInput,
   Friend,
   FriendRequest,
@@ -88,7 +99,10 @@ export interface ChatState {
     name: string,
     memberIds: string[]
   ) => Promise<void>
-  addGroupMembers: (conversationId: string, memberIds: string[]) => Promise<void>
+  addGroupMembers: (
+    conversationId: string,
+    memberIds: string[]
+  ) => Promise<void>
   removeGroupMember: (conversationId: string, memberId: string) => Promise<void>
   leaveGroup: (conversationId: string) => Promise<void>
   updateGroup: (conversationId: string, name: string) => Promise<void>
@@ -101,6 +115,38 @@ export interface SocketState {
   connectSocket: () => void
   disconnectSocket: () => void
   emitTyping: (conversationId: string, isTyping: boolean) => void
+}
+
+export interface CallState {
+  status: CallStatus
+  callId: string | null
+  conversationId: string | null
+  peer: CallPeer | null
+  isCaller: boolean
+  localStream: MediaStream | null
+  remoteStream: MediaStream | null
+  peerConnection: RTCPeerConnection | null
+  micEnabled: boolean
+  camEnabled: boolean
+  startedAt: number | null
+  startCall: (conversation: Conversation) => Promise<void>
+  acceptCall: () => Promise<void>
+  rejectCall: () => void
+  endCall: () => void
+  toggleMic: () => void
+  toggleCam: () => void
+  resetCall: () => void
+  handleSocketDisconnect: () => void
+  handleInvite: (payload: CallInvitePayload) => void
+  handleAccept: (payload: CallPayload) => Promise<void>
+  handleReject: (payload: CallRejectPayload) => void
+  handleOffer: (payload: CallOfferPayload) => Promise<void>
+  handleAnswer: (payload: CallAnswerPayload) => Promise<void>
+  handleIce: (payload: CallIcePayload) => Promise<void>
+  handleBusy: (payload: CallPayload) => void
+  handleUnavailable: (payload: CallPayload) => void
+  handleEnded: (payload: CallPayload) => void
+  handleHandled: (payload: CallHandledPayload) => void
 }
 
 export interface FriendState {

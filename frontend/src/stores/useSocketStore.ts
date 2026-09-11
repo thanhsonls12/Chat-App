@@ -3,6 +3,7 @@ import { io, type Socket } from 'socket.io-client'
 import { useAuthStore } from './useAuthStore'
 import type { SocketState } from '@/types/store'
 import { useChatStore } from './useChatStore'
+import { useCallStore } from './useCallStore'
 import type {
   Conversation,
   MessageUpdatedSocketPayload,
@@ -11,6 +12,15 @@ import type {
   RemovedFromGroupSocketPayload,
   TypingSocketPayload,
 } from '@/types/chat'
+import type {
+  CallAnswerPayload,
+  CallHandledPayload,
+  CallIcePayload,
+  CallInvitePayload,
+  CallOfferPayload,
+  CallPayload,
+  CallRejectPayload,
+} from '@/types/call'
 
 const baseUrl = import.meta.env.VITE_SOCKET_URL
 
@@ -42,6 +52,10 @@ export const useSocketStore = create<SocketState>((set, get) => ({
 
     socket.on('connect', () => {
       console.log('socket connected')
+    })
+
+    socket.on('disconnect', () => {
+      useCallStore.getState().handleSocketDisconnect()
     })
 
     socket.on('onlineUsers', (userIds: string[]) => {
@@ -118,7 +132,12 @@ export const useSocketStore = create<SocketState>((set, get) => ({
 
     socket.on(
       'user-typing',
-      ({ conversationId, userId, displayName, isTyping }: TypingSocketPayload) => {
+      ({
+        conversationId,
+        userId,
+        displayName,
+        isTyping,
+      }: TypingSocketPayload) => {
         const timerKey = `${conversationId}:${userId}`
         const existingTimer = typingExpiryTimers.get(timerKey)
         if (existingTimer) clearTimeout(existingTimer)
@@ -149,7 +168,10 @@ export const useSocketStore = create<SocketState>((set, get) => ({
             },
           }
         })
-        typingExpiryTimers.set(timerKey, setTimeout(removeTyping, TYPING_EXPIRY_MS))
+        typingExpiryTimers.set(
+          timerKey,
+          setTimeout(removeTyping, TYPING_EXPIRY_MS)
+        )
       }
     )
 
@@ -173,8 +195,40 @@ export const useSocketStore = create<SocketState>((set, get) => ({
         socket.emit('leave-conversation', conversationId)
       }
     )
+
+    socket.on('call:invite', (payload: CallInvitePayload) => {
+      useCallStore.getState().handleInvite(payload)
+    })
+    socket.on('call:accept', (payload: CallPayload) => {
+      void useCallStore.getState().handleAccept(payload)
+    })
+    socket.on('call:reject', (payload: CallRejectPayload) => {
+      useCallStore.getState().handleReject(payload)
+    })
+    socket.on('call:offer', (payload: CallOfferPayload) => {
+      void useCallStore.getState().handleOffer(payload)
+    })
+    socket.on('call:answer', (payload: CallAnswerPayload) => {
+      void useCallStore.getState().handleAnswer(payload)
+    })
+    socket.on('call:ice-candidate', (payload: CallIcePayload) => {
+      void useCallStore.getState().handleIce(payload)
+    })
+    socket.on('call:busy', (payload: CallPayload) => {
+      useCallStore.getState().handleBusy(payload)
+    })
+    socket.on('call:unavailable', (payload: CallPayload) => {
+      useCallStore.getState().handleUnavailable(payload)
+    })
+    socket.on('call:end', (payload: CallPayload) => {
+      useCallStore.getState().handleEnded(payload)
+    })
+    socket.on('call:handled', (payload: CallHandledPayload) => {
+      useCallStore.getState().handleHandled(payload)
+    })
   },
   disconnectSocket: () => {
+    useCallStore.getState().handleSocketDisconnect()
     const socket = get().socket
     if (socket) {
       socket.disconnect()
