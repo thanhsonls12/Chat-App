@@ -46,6 +46,17 @@ const lastMessageSchema = new mongoose.Schema(
       type: String,
       default: null
     },
+    type: {
+      type: String,
+      enum: ['text', 'call'],
+      default: 'text'
+    },
+    call: {
+      callId: String,
+      callType: { type: String, enum: ['video'] },
+      status: { type: String, enum: ['ended', 'rejected', 'missed'] },
+      duration: { type: Number, min: 0 }
+    },
     senderId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User'

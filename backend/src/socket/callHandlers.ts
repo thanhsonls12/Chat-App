@@ -1,5 +1,6 @@
 import mongoose from 'mongoose'
 import Conversation from '@/models/Conversation.js'
+import { persistCallRecord, type CallRecordStatus } from '@/utils/callRecord.js'
 import type {
   AppServer,
   AppSocket,
@@ -25,6 +26,8 @@ interface CallSession extends CallPayload {
   callerSocketId: string
   receiverSocketId?: string
   pendingCallerCandidates: unknown[]
+  acceptedAt?: number
+  terminalStarted: boolean
   ringTimeout: ReturnType<typeof setTimeout>
 }
 
@@ -122,9 +125,24 @@ const emitCallEnd = (io: AppServer, session: CallSession) => {
   )
 }
 
-const endSession = (io: AppServer, session: CallSession) => {
+const endSession = (
+  io: AppServer,
+  session: CallSession,
+  status: CallRecordStatus = session.status === 'accepted' ? 'ended' : 'missed',
+  notifyEnd = true
+) => {
+  if (session.terminalStarted) return
+  session.terminalStarted = true
+  const duration = session.acceptedAt ? Math.max(0, Math.floor((Date.now() - session.acceptedAt) / 1000)) : 0
   releaseSession(session)
-  emitCallEnd(io, session)
+  if (notifyEnd) emitCallEnd(io, session)
+  void persistCallRecord(io, {
+    callId: session.callId,
+    conversationId: session.conversationId,
+    callerId: session.callerId,
+    status,
+    duration
+  })
 }
 
 const getSession = (payload: unknown) => {
@@ -214,6 +232,7 @@ export const registerCallHandlers = (
         answerSent: false,
         callerSocketId: socket.id,
         pendingCallerCandidates: [],
+        terminalStarted: false,
         ringTimeout: setTimeout(() => {
           const current = callsById.get(payload.callId)
           if (current?.status === 'ringing') endSession(io, current)
@@ -244,6 +263,7 @@ export const registerCallHandlers = (
 
     clearTimeout(session.ringTimeout)
     session.status = 'accepted'
+    session.acceptedAt = Date.now()
     session.receiverSocketId = socket.id
     callsBySocket.set(socket.id, session.callId)
 
@@ -262,7 +282,7 @@ export const registerCallHandlers = (
     const session = getSession(payload)
     if (!session || session.status !== 'ringing' || userId !== session.receiverId) return
 
-    releaseSession(session)
+    endSession(io, session, 'rejected', false)
     io.to(session.callerSocketId).emit('call:reject', {
       ...sessionPayload(session),
       ...(payload.reason ? { reason: payload.reason } : {})
@@ -335,7 +355,7 @@ export const registerCallHandlers = (
     const session = getSession(payload)
     if (!session || session.status !== 'ringing' || userId !== session.receiverId) return
 
-    releaseSession(session)
+    endSession(io, session, 'rejected', false)
     io.to(session.callerSocketId).emit('call:busy', sessionPayload(session))
     io.to(`user:${session.receiverId}`).emit('call:handled', { callId: session.callId })
   })

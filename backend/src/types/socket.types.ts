@@ -1,10 +1,19 @@
 import type { Server, Socket } from 'socket.io'
 import type { UserDocument } from '@/models/User.js'
 
+export interface CallRecordPayload {
+  callId: string
+  callType: 'video'
+  status: 'ended' | 'rejected' | 'missed'
+  duration: number
+}
+
 export interface MessagePayload {
   _id: string
   conversationId: string
   senderId: string
+  type: 'text' | 'call'
+  call?: CallRecordPayload
   content?: string | null
   imgUrl?: string | null
   createdAt: string
@@ -18,6 +27,8 @@ export interface ConversationMessagePayload {
   lastMessage: {
     _id: string
     senderId: string
+    type: 'text' | 'call'
+    call?: CallRecordPayload
     content?: string | null
     imgUrl?: string | null
     createdAt: string

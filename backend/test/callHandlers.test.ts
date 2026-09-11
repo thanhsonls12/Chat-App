@@ -129,6 +129,8 @@ test('binds signaling to the accepted browser tab and marks the user busy', asyn
     assert.equal(io.emitted.at(-1)?.event, 'call:answer')
 
     await invoke(caller, 'call:end', call)
+    await invoke(receiverTab, 'call:end', call)
+    assert.equal(io.emitted.filter((item) => item.event === 'call:end').length, 1)
   } finally {
     Conversation.findById = originalFindById
   }

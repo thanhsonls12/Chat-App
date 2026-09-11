@@ -32,8 +32,14 @@ export default function DirectMessageCard({
   const unreadCount = conversation.unreadCounts[user._id]
   const lastMessage = conversation.lastMessage?.deletedAt
     ? t('messageRecalled')
-    : conversation.lastMessage?.content ||
-      (conversation.lastMessage?.imgUrl ? t('imageSent') : '')
+    : conversation.lastMessage?.type === 'call'
+      ? {
+          ended: t('callRecordEnded'),
+          rejected: t('callRecordRejected'),
+          missed: t('callRecordMissed'),
+        }[conversation.lastMessage.call?.status ?? 'ended']
+      : conversation.lastMessage?.content ||
+        (conversation.lastMessage?.imgUrl ? t('imageSent') : '')
   const handleSelectConversation = async (id: string) => {
     setActiveConversation(id)
     if (!messages[id] || messages[id].nextCursor === undefined) {

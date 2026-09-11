@@ -16,8 +16,17 @@ export interface Group {
   createdBy: string
 }
 
+export interface CallRecord {
+  callId: string
+  callType: 'video'
+  status: 'ended' | 'rejected' | 'missed'
+  duration: number
+}
+
 export interface LastMessage {
   _id: string
+  type?: 'text' | 'call'
+  call?: CallRecord
   content: string
   imgUrl?: string | null
   createdAt: string
@@ -46,6 +55,8 @@ export interface Message {
   _id: string
   conversationId: string
   senderId: string
+  type?: 'text' | 'call'
+  call?: CallRecord
   content: string | null
   imgUrl?: string | null
   updatedAt?: string | null
@@ -69,6 +80,8 @@ export interface NewMessageSocketPayload {
     lastMessage: {
       _id: string
       senderId: string
+      type: 'text' | 'call'
+      call?: CallRecord
       content?: string | null
       imgUrl?: string | null
       createdAt: string

@@ -7,6 +7,17 @@ export const toMessagePayload = (message: MessageDocument): MessagePayload => ({
   _id: message._id.toString(),
   conversationId: message.conversationId.toString(),
   senderId: message.senderId.toString(),
+  type: message.type,
+  ...(message.call?.callId
+    ? {
+        call: {
+          callId: message.call.callId,
+          callType: message.call.callType!,
+          status: message.call.status!,
+          duration: message.call.duration!
+        }
+      }
+    : {}),
   ...(message.content !== undefined ? { content: message.content } : {}),
   ...(message.imgUrl !== undefined ? { imgUrl: message.imgUrl } : {}),
   createdAt: message.createdAt.toISOString(),
@@ -25,6 +36,8 @@ export const updateConversationAfterCreateMessage = (
     lastMessage: {
       _id: message._id,
       senderId,
+      type: message.type,
+      call: message.call,
       content: message.content,
       imgUrl: message.imgUrl,
       createdAt: message.createdAt
@@ -60,6 +73,17 @@ export const emitNewMessage = (
       lastMessage: {
         _id: message._id.toString(),
         senderId: message.senderId.toString(),
+        type: message.type,
+        ...(message.call?.callId
+    ? {
+        call: {
+          callId: message.call.callId,
+          callType: message.call.callType!,
+          status: message.call.status!,
+          duration: message.call.duration!
+        }
+      }
+    : {}),
         ...(message.content !== undefined ? { content: message.content } : {}),
         ...(message.imgUrl !== undefined ? { imgUrl: message.imgUrl } : {}),
         createdAt

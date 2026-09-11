@@ -11,7 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
-import { Check, MoreHorizontal, Pencil, Undo2, X } from 'lucide-react'
+import { Check, MoreHorizontal, Pencil, Phone, Undo2, X } from 'lucide-react'
 import { useState } from 'react'
 import { useChatStore } from '@/stores/useChatStore'
 import { toast } from 'sonner'
@@ -49,8 +49,16 @@ export default function MessageItem({
   )
 
   const isRecalled = !!message.deletedAt
-  const canEdit = !!message.isOwn && !isRecalled && !!message.content
-  const canRecall = !!message.isOwn && !isRecalled
+  const isCall = message.type === 'call' && !!message.call
+  const callLabel = message.call
+    ? {
+        ended: t('callRecordEnded'),
+        rejected: t('callRecordRejected'),
+        missed: t('callRecordMissed'),
+      }[message.call.status]
+    : ''
+  const canEdit = !!message.isOwn && !isRecalled && !isCall && !!message.content
+  const canRecall = !!message.isOwn && !isRecalled && !isCall
 
   const startEditing = () => {
     setDraft(message.content ?? '')
@@ -187,6 +195,14 @@ export default function MessageItem({
               <p className="text-sm italic leading-relaxed opacity-70">
                 {t('messageRecalled')}
               </p>
+            ) : isCall ? (
+              <div className="flex items-center gap-2 text-sm">
+                <Phone className="size-4" />
+                <span>
+                  {callLabel}
+                  {message.call!.duration > 0 && ` · ${Math.floor(message.call!.duration / 60)}:${String(message.call!.duration % 60).padStart(2, '0')}`}
+                </span>
+              </div>
             ) : (
               <>
                 {message.imgUrl && (

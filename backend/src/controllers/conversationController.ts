@@ -36,6 +36,13 @@ type PopulatedLastMessage = {
   _id?: string | null
   content?: string | null
   imgUrl?: string | null
+  type?: 'text' | 'call'
+  call?: {
+    callId?: string
+    callType?: 'video'
+    status?: 'ended' | 'rejected' | 'missed'
+    duration?: number
+  }
   createdAt?: Date | null
   deletedAt?: Date | null
   senderId?: {
@@ -60,6 +67,8 @@ const mapLastMessage = (lastMessage: unknown) => {
     _id: data._id,
     content: data.content ?? '',
     imgUrl: data.imgUrl ?? null,
+    type: data.type ?? 'text',
+    call: data.call ?? undefined,
     createdAt: data.createdAt ?? null,
     deletedAt: data.deletedAt ?? null,
     sender: {
