@@ -21,9 +21,9 @@ interface ApiErrorResponse {
   errors?: Record<string, { msg?: string }>
 }
 
-const getSendMessageError = (error: unknown) => {
+const getSendMessageError = (error: unknown, fallback: string) => {
   if (!isAxiosError<ApiErrorResponse>(error)) {
-    return 'Unable to send message. Please try again.'
+    return fallback
   }
 
   const data = error.response?.data
@@ -31,7 +31,7 @@ const getSendMessageError = (error: unknown) => {
     ? Object.values(data.errors).find((value) => value.msg)?.msg
     : undefined
 
-  return validationMessage ?? data?.message ?? 'Unable to send message. Please try again.'
+  return validationMessage ?? data?.message ?? fallback
 }
 
 export default function MessageInput({
@@ -130,7 +130,7 @@ export default function MessageInput({
       setValue('')
       clearImage()
     } catch (error) {
-      toast.error(getSendMessageError(error))
+      toast.error(getSendMessageError(error, t('sendMessageFailed')))
     } finally {
       setSending(false)
     }
@@ -187,7 +187,7 @@ export default function MessageInput({
               else stopTyping()
             }}
             placeholder={t('composeMessage')}
-            className="pr-20 h-9 bg-white border-border/50 focus:border-primary/50 transition-smooth resize-none"
+            className="pr-20 h-9 bg-background border-border/50 focus:border-primary/50 transition-smooth resize-none"
             onKeyDown={handleKeyPress}
           ></Input>
           <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">

@@ -13,8 +13,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
-import { Moon, Sun } from 'lucide-react'
-
 import CreateNewChat from '../chat/CreateNewChat'
 import NewGroupChatModal from '../chat/NewGroupChatModal'
 import GroupChatList from '../chat/GroupChatList'
@@ -44,16 +42,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <div>
                 <div className="flex w-full items-center px-2 justify-between">
                   <h1 className="text-xl font-bold text-white">Chat-App</h1>
-                  <div className="flex items-center gap-2 justify-between">
+                  <div className="flex shrink-0 items-center gap-2">
                     <LanguageSwitcher />
-                    <Sun className="size-4 text-white/80" />
                     <Switch
                       checked={isDark}
                       onCheckedChange={toggleTheme}
                       aria-label={t('toggleTheme')}
                       className="data-[state=checked]:bg-background/80"
                     />
-                    <Moon className="size-4 text-white/80" />
                   </div>
                 </div>
               </div>

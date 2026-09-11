@@ -10,7 +10,7 @@ export default function ChatAppPage() {
     <TooltipProvider>
       <SidebarProvider>
         <AppSidebar />
-        <div className="flex h-screen w-full p-2">
+        <div className="flex h-dvh w-full p-2">
           <ChatWindowLayout />
         </div>
       </SidebarProvider>
