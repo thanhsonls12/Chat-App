@@ -18,11 +18,7 @@ export const createPeerConnection = () =>
   new RTCPeerConnection({ iceServers: getIceServers() })
 
 export const getLocalMediaStream = async () => {
-  try {
-    return await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-  } catch {
-    return navigator.mediaDevices.getUserMedia({ video: false, audio: true })
-  }
+  return navigator.mediaDevices.getUserMedia({ video: false, audio: true })
 }
 
 export const stopStream = (stream: MediaStream | null) => {

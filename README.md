@@ -11,7 +11,7 @@
 - Trạng thái online, typing indicator, unread count và read receipt.
 - Quản lý nhóm: đổi tên, thêm/xóa thành viên và rời nhóm.
 - Kết bạn và xử lý lời mời kết bạn.
-- Gọi video WebRTC với mic, camera, signaling Socket.IO, timeout và hỗ trợ nhiều tab.
+- Gọi thoại WebRTC với microphone, signaling Socket.IO, timeout và hỗ trợ nhiều tab.
 - Chuyển đổi giao diện sáng/tối và tiếng Việt/English.
 - Docker Compose cho frontend Nginx và backend Node.js.
 
@@ -167,7 +167,7 @@ Các route bên dưới `/api/users`, `/api/friends`, `/api/messages` và `/api/
 
 ## Ghi chú WebRTC
 
-Ứng dụng dùng Google STUN mặc định. STUN-only có thể không kết nối được khi hai máy ở sau symmetric NAT hoặc firewall nghiêm ngặt. Khi đó cần cung cấp TURN server qua các biến `VITE_TURN_*`. Camera và microphone phải được trình duyệt cấp quyền trên HTTPS hoặc `localhost`.
+Ứng dụng dùng Google STUN mặc định. STUN-only có thể không kết nối được khi hai máy ở sau symmetric NAT hoặc firewall nghiêm ngặt. Khi đó cần cung cấp TURN server qua các biến `VITE_TURN_*`. Microphone phải được trình duyệt cấp quyền trên HTTPS hoặc `localhost`.
 
 ## Bảo mật và vận hành
 

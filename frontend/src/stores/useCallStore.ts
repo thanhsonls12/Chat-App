@@ -48,7 +48,6 @@ const idleState = {
   remoteStream: null,
   peerConnection: null,
   micEnabled: true,
-  camEnabled: true,
   startedAt: null,
 }
 
@@ -241,7 +240,6 @@ export const useCallStore = create<CallState>((set, get) => {
         localStream,
         peerConnection: pc,
         micEnabled: true,
-        camEnabled: localStream.getVideoTracks().length > 0,
       })
 
       const payload = buildPayload()
@@ -301,7 +299,6 @@ export const useCallStore = create<CallState>((set, get) => {
         localStream,
         peerConnection: pc,
         micEnabled: true,
-        camEnabled: localStream.getVideoTracks().length > 0,
       })
 
       const payload = buildPayload()
@@ -327,12 +324,6 @@ export const useCallStore = create<CallState>((set, get) => {
       const next = !micEnabled
       localStream?.getAudioTracks().forEach((track) => (track.enabled = next))
       set({ micEnabled: next })
-    },
-    toggleCam: () => {
-      const { localStream, camEnabled } = get()
-      const next = !camEnabled
-      localStream?.getVideoTracks().forEach((track) => (track.enabled = next))
-      set({ camEnabled: next })
     },
     resetCall: resetToIdle,
     handleSocketDisconnect: () => {

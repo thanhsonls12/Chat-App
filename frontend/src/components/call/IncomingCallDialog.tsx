@@ -20,7 +20,7 @@ export default function IncomingCallDialog() {
       >
         <DialogHeader>
           <DialogTitle className="text-center">
-            {t('incomingVideoCall')}
+            {t('incomingVoiceCall')}
           </DialogTitle>
         </DialogHeader>
         <div className="flex flex-col items-center gap-3 py-4">

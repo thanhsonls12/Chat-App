@@ -127,14 +127,12 @@ export interface CallState {
   remoteStream: MediaStream | null
   peerConnection: RTCPeerConnection | null
   micEnabled: boolean
-  camEnabled: boolean
   startedAt: number | null
   startCall: (conversation: Conversation) => Promise<void>
   acceptCall: () => Promise<void>
   rejectCall: () => void
   endCall: () => void
   toggleMic: () => void
-  toggleCam: () => void
   resetCall: () => void
   handleSocketDisconnect: () => void
   handleInvite: (payload: CallInvitePayload) => void

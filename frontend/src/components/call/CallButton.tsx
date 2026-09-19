@@ -1,4 +1,4 @@
-import { Video } from 'lucide-react'
+import { Phone } from 'lucide-react'
 import { Button } from '../ui/button'
 import { useCallStore } from '@/stores/useCallStore'
 import type { Conversation } from '@/types/chat'
@@ -20,8 +20,8 @@ export default function CallButton({
       disabled={status !== 'idle'}
       onClick={() => void startCall(conversation)}
     >
-      <Video className="size-4" />
-      <span className="sr-only">{t('videoCall')}</span>
+      <Phone className="size-4" />
+      <span className="sr-only">{t('voiceCall')}</span>
     </Button>
   )
 }

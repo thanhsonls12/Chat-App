@@ -3,7 +3,7 @@ import { AppSidebar } from '@/components/sidebar/app-sidebar'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import IncomingCallDialog from '@/components/call/IncomingCallDialog'
-import VideoCallOverlay from '@/components/call/VideoCallOverlay'
+import VoiceCallOverlay from '@/components/call/VoiceCallOverlay'
 
 export default function ChatAppPage() {
   return (
@@ -15,7 +15,7 @@ export default function ChatAppPage() {
         </div>
       </SidebarProvider>
       <IncomingCallDialog />
-      <VideoCallOverlay />
+      <VoiceCallOverlay />
     </TooltipProvider>
   )
 }
