@@ -149,6 +149,8 @@ npm run preview      # Preview production build
 
 ## REST API chính
 
+Swagger UI có tại /api/docs và OpenAPI JSON có tại /api/docs.json.
+
 Các route bên dưới `/api/users`, `/api/friends`, `/api/messages` và `/api/conversations` yêu cầu access token trong header `Authorization: Bearer <token>`.
 
 | Method | Endpoint | Mục đích |

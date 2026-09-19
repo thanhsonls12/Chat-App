@@ -16,7 +16,19 @@ import { app, server } from './socket/index.js'
 import { v2 as cloudinary } from 'cloudinary'
 import helmet from 'helmet'
 import { rateLimit } from 'express-rate-limit'
+import swaggerUi from 'swagger-ui-express'
+import { swaggerDocument } from './config/swagger.js'
 const PORT = envConfig.PORT ?? 5001
+
+app.get('/api/docs.json', (_req, res) => res.json(swaggerDocument))
+app.use(
+  '/api/docs',
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerDocument, {
+    explorer: true,
+    customSiteTitle: 'Chat App API Docs'
+  })
+)
 
 app.use(helmet())
 app.use(express.json())
